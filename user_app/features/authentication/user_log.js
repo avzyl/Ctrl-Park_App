@@ -40,3 +40,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+
+
+
+// ================== SESSION CHECK & DISPLAY ==================
+document.addEventListener("DOMContentLoaded", () => {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    window.location.href = "/index.html";
+  } else {
+    // ✅ Show user’s name
+    const headerEl = document.getElementById("userNameHeader");
+    const profileEl = document.getElementById("userNameProfile");
+    if (headerEl) headerEl.textContent = currentUser.fullName;
+    if (profileEl) profileEl.textContent = currentUser.fullName;
+
+    // ✅ Show user’s role
+    const roleEl = document.getElementById("user-role");
+    if (roleEl) roleEl.textContent = currentUser.role;
+
+    // ✅ Show user’s photo
+    const photoEl = document.getElementById("user-photo");
+    if (photoEl) {
+      photoEl.src = currentUser.photoURL || "../../main_img/default-avatar.svg";
+    }
+  }
+});

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SignIn&SignUp</title>
+    <title>Ctrl+Park</title>
     <link rel="stylesheet" type="text/css" href="main_assets/css/style.css" />
     <!-- Fontawesome -->
      <script src="https://kit.fontawesome.com/a60b0a6b5e.js" crossorigin="anonymous"></script>
@@ -83,6 +83,15 @@
               </div>
             </div>
 
+            <!-- Passenger-only Fields -->
+            <div id="passenger-fields" style="display: none">
+              <div class="input-field">
+                <i class="fas fa-id-card"></i>
+                <input type="text" name="studentNumber" placeholder="Student Number" />
+              </div>
+            </div>
+
+
             <!-- Terms Agreement -->
             <div class="terms">
               <input type="checkbox" name="terms" id="terms" required />
@@ -124,10 +133,22 @@
     </div>
 
     <script>
-      // Show driver fields if role is driver
-      document.getElementById("role").addEventListener("change", function () {
-        const driverFields = document.getElementById("driver-fields");
-        driverFields.style.display = this.value === "driver" ? "block" : "none";
+      // Show/hide fields based on selected role
+      const roleSelect = document.getElementById("role");
+      const driverFields = document.getElementById("driver-fields");
+      const passengerFields = document.getElementById("passenger-fields");
+
+      roleSelect.addEventListener("change", function () {
+        if (this.value === "driver") {
+          driverFields.style.display = "block";
+          passengerFields.style.display = "none";
+        } else if (this.value === "passenger") {
+          driverFields.style.display = "none";
+          passengerFields.style.display = "block";
+        } else {
+          driverFields.style.display = "none";
+          passengerFields.style.display = "none";
+        }
       });
     </script>
 

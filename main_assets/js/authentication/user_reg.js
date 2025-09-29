@@ -1,85 +1,109 @@
 // ================== IMPORTS ==================
 import { db, auth, googleProvider } from "./firebase.js";
-import {
-  signInWithPopup,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {
-  setDoc,
-  getDoc,
-  doc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { setDoc, getDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ✅ CryptoJS (global from CDN in index.html)
+// CryptoJS (global from CDN)
 function hashPassword(password) {
   return CryptoJS.SHA256(password).toString();
 }
 
-// Allowed domain for Google login
+// Allowed CEU domain
 const allowedDomain = "@mls.ceu.edu.ph";
 
-// ================== SIGN UP (Firestore Only) ==================
+// ================== SIGN UP ==================
 const signupForm = document.getElementById("signup-form");
 if (signupForm) {
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const signupBtn = signupForm.querySelector('input[type="submit"]'); // get the sign-up button
+    const originalText = signupBtn.value;
+    signupBtn.disabled = true;
+    signupBtn.value = "Signing up...";
 
     const fullName = signupForm["fullName"].value.trim();
     const email = signupForm["email"].value.trim();
     const password = signupForm["password"].value.trim();
     const role = signupForm["role"].value;
     const plateNumber = signupForm["plateNumber"]?.value || "";
-    const carPassNumber = signupForm["carPassNumber"]?.value || "";
+    const carPassNumber = signupForm["carPassNumber"]?.value.trim() || "";
+    const workId = signupForm["workId"]?.value.trim() || "";
+    const studentNumber = signupForm["studentNumber"]?.value.trim() || "";
     const termsChecked = signupForm["terms"].checked;
 
     if (!termsChecked) {
       Swal.fire("Error", "You must agree to the terms first.", "error");
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
+      return;
+    }
+
+    // Determine idNumber
+    let idNumber;
+    if (role === "admin") idNumber = workId;
+    else if (role === "driver") idNumber = carPassNumber;
+    else if (role === "passenger") idNumber = studentNumber;
+
+    if (!idNumber) {
+      Swal.fire("Error", `Please provide a valid ${role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"}.`, "error");
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
       return;
     }
 
     try {
-      // Use email as document ID
-      const userRef = doc(db, "users", email);
+      const userRef = doc(db, "users", idNumber);
       const docSnap = await getDoc(userRef);
-
       if (docSnap.exists()) {
-        Swal.fire("Error", "This email is already registered.", "error");
+        Swal.fire("Error", "This ID is already registered.", "error");
+        signupBtn.disabled = false;
+        signupBtn.value = originalText;
         return;
       }
 
-      // Save in Firestore with hashed password + default avatar
       const userData = {
         fullName,
         email,
         password: hashPassword(password),
         role,
         plateNumber,
-        carPassNumber,
-        photoURL: "../../main_img/default-avatar.svg", // ✅ default profile picture
+        idNumber,
+        photoURL: "../../main_img/default-avatar.svg",
         createdAt: serverTimestamp(),
       };
 
       await setDoc(userRef, userData);
-
-      // Save session
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
-        window.location.href = "user_app/features/system/screens/home/home.html";
+        if (role === "admin") {
+          window.location.href = "admin_app/features/authentication/screens/registration/registration.html"; 
+        } else {
+          window.location.href = "user_app/features/system/screens/home/home.html";
+        }
       });
     } catch (error) {
       console.error("Signup error:", error);
       Swal.fire("Error", error.message, "error");
+    } finally {
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
     }
   });
 }
 
-// ================== SIGN IN (Firestore Only) ==================
+
+// ================== SIGN IN ==================
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const loginBtn = loginForm.querySelector('input[type="submit"]');
+    const originalText = loginBtn.value;
+    loginBtn.disabled = true;
+    loginBtn.value = "Logging in...";
 
     const idNumber = loginForm["idNumber"].value.trim();
     const password = loginForm["password"].value.trim();
@@ -94,20 +118,16 @@ if (loginForm) {
       }
 
       const userData = docSnap.data();
-
-      // Compare hashes
       if (userData.password !== hashPassword(password)) {
         Swal.fire("Error", "Invalid ID or password.", "error");
         return;
       }
 
-      // ✅ Save session in localStorage
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
-      // Redirect based on role
       if (userData.role === "admin") {
-        Swal.fire("Welcome Admin!", "Redirecting to admin panel...", "success").then(() => {
-          window.location.href = "admin_app/features/system/screens/home/home.html";
+        Swal.fire("Welcome Admin!", "Redirecting to dashboard...", "success").then(() => {
+          window.location.href = "admin_app/features/system/screens/home/dashboard.html";
         });
       } else {
         Swal.fire("Success", `Welcome back, ${userData.fullName}!`, "success").then(() => {
@@ -117,6 +137,9 @@ if (loginForm) {
     } catch (error) {
       console.error("Login error:", error);
       Swal.fire("Error", error.message, "error");
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.value = originalText;
     }
   });
 }
@@ -144,7 +167,7 @@ if (googleLoginBtn) {
           fullName: user.displayName || "",
           email: user.email,
           role: "passenger",
-          photoURL: user.photoURL || "../../main_img/default-avatar.svg", // ✅ Google photo or fallback
+          photoURL: user.photoURL || "../../user_assets/user_img/default-avatar.svg",
           createdAt: serverTimestamp(),
         };
         await setDoc(userRef, userData);
@@ -152,7 +175,6 @@ if (googleLoginBtn) {
         userData = docSnap.data();
       }
 
-      // ✅ Save session in localStorage
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
       Swal.fire("Success", `Welcome back, ${user.displayName}!`, "success").then(() => {
@@ -168,35 +190,32 @@ if (googleLoginBtn) {
 // ================== LOGOUT ==================
 const logoutBtn = document.getElementById("logout-btn");
 if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    localStorage.removeItem("currentUser"); // Clear session
-    signOut(auth); // Also sign out Google users
-    window.location.href = "/index.html";
+  logoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Logout",
+      cancelButtonText: "Cancel",
+      reverseButtons: true
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try { await signOut(auth); } catch (err) { console.warn("SignOut error:", err); }
+
+        localStorage.removeItem("currentUser");
+
+        Swal.fire({
+          title: "Logged Out",
+          text: "You have been successfully logged out.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          willClose: () => { window.location.href = "/index.html"; }
+        });
+      }
+    });
   });
 }
-
-// ================== SESSION CHECK & DISPLAY ==================
-document.addEventListener("DOMContentLoaded", () => {
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-  if (!currentUser) {
-    // Not logged in → redirect
-    window.location.href = "/index.html";
-  } else {
-    // ✅ Show user’s name
-    const headerEl = document.getElementById("userNameHeader");
-    const profileEl = document.getElementById("userNameProfile");
-    if (headerEl) headerEl.textContent = currentUser.fullName;
-    if (profileEl) profileEl.textContent = currentUser.fullName;
-
-    // ✅ Show user’s role
-    const roleEl = document.getElementById("user-role");
-    if (roleEl) roleEl.textContent = currentUser.role;
-
-    // ✅ Show user’s photo
-    const photoEl = document.getElementById("user-photo");
-    if (photoEl) {
-      photoEl.src = currentUser.photoURL || "../../main_img/default-avatar.svg";
-    }
-  }
-});
