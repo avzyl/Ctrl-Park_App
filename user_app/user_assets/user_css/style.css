@@ -577,6 +577,18 @@ main .planning .item > i{
     width: 100%;
 }
 
+.logout-btn {
+  color: #f44336;
+  padding: 15px;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: none;
+  text-decoration: none;
+}
+
+
 @media screen and (max-width: 1200px) {
     
     .container{
