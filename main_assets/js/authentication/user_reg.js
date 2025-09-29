@@ -1,29 +1,26 @@
 // ================== IMPORTS ==================
 import { db, auth, googleProvider } from "./firebase.js";
-import {
-  signInWithPopup,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {
-  setDoc,
-  getDoc,
-  doc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { setDoc, getDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ✅ CryptoJS (global from CDN in index.html)
+// CryptoJS (global from CDN)
 function hashPassword(password) {
   return CryptoJS.SHA256(password).toString();
 }
 
-// Allowed domain for Google login
+// Allowed CEU domain
 const allowedDomain = "@mls.ceu.edu.ph";
 
-// ================== SIGN UP (Firestore Only) ==================
+// ================== SIGN UP ==================
 const signupForm = document.getElementById("signup-form");
 if (signupForm) {
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const signupBtn = signupForm.querySelector('input[type="submit"]'); // get the sign-up button
+    const originalText = signupBtn.value;
+    signupBtn.disabled = true;
+    signupBtn.value = "Signing up...";
 
     const fullName = signupForm["fullName"].value.trim();
     const email = signupForm["email"].value.trim();
@@ -32,26 +29,36 @@ if (signupForm) {
     const plateNumber = signupForm["plateNumber"]?.value || "";
     const carPassNumber = signupForm["carPassNumber"]?.value.trim() || "";
     const workId = signupForm["workId"]?.value.trim() || "";
+    const studentNumber = signupForm["studentNumber"]?.value.trim() || "";
     const termsChecked = signupForm["terms"].checked;
 
     if (!termsChecked) {
       Swal.fire("Error", "You must agree to the terms first.", "error");
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
       return;
     }
 
-    // ✅ Use carPassNumber for users, workId for admins
-    const idNumber = role === "admin" ? workId : carPassNumber;
+    // Determine idNumber
+    let idNumber;
+    if (role === "admin") idNumber = workId;
+    else if (role === "driver") idNumber = carPassNumber;
+    else if (role === "passenger") idNumber = studentNumber;
+
     if (!idNumber) {
-      Swal.fire("Error", "Please provide a valid ID number.", "error");
+      Swal.fire("Error", `Please provide a valid ${role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"}.`, "error");
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
       return;
     }
 
     try {
-      const userRef = doc(db, "users", idNumber); // 🔑 Use ID as doc ID
+      const userRef = doc(db, "users", idNumber);
       const docSnap = await getDoc(userRef);
-
       if (docSnap.exists()) {
         Swal.fire("Error", "This ID is already registered.", "error");
+        signupBtn.disabled = false;
+        signupBtn.value = originalText;
         return;
       }
 
@@ -67,11 +74,8 @@ if (signupForm) {
       };
 
       await setDoc(userRef, userData);
-
-      // Save session
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
-      // Redirect logic after signup
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
         if (role === "admin") {
           window.location.href = "admin_app/features/authentication/screens/registration/registration.html"; 
@@ -82,15 +86,24 @@ if (signupForm) {
     } catch (error) {
       console.error("Signup error:", error);
       Swal.fire("Error", error.message, "error");
+    } finally {
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
     }
   });
 }
 
-// ================== SIGN IN (Firestore Only) ==================
+
+// ================== SIGN IN ==================
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const loginBtn = loginForm.querySelector('input[type="submit"]');
+    const originalText = loginBtn.value;
+    loginBtn.disabled = true;
+    loginBtn.value = "Logging in...";
 
     const idNumber = loginForm["idNumber"].value.trim();
     const password = loginForm["password"].value.trim();
@@ -105,17 +118,13 @@ if (loginForm) {
       }
 
       const userData = docSnap.data();
-
-      // Compare hashes
       if (userData.password !== hashPassword(password)) {
         Swal.fire("Error", "Invalid ID or password.", "error");
         return;
       }
 
-      // ✅ Save session
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
-      // ✅ Redirect logic
       if (userData.role === "admin") {
         Swal.fire("Welcome Admin!", "Redirecting to dashboard...", "success").then(() => {
           window.location.href = "admin_app/features/system/screens/home/dashboard.html";
@@ -128,6 +137,9 @@ if (loginForm) {
     } catch (error) {
       console.error("Login error:", error);
       Swal.fire("Error", error.message, "error");
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.value = originalText;
     }
   });
 }
@@ -155,7 +167,7 @@ if (googleLoginBtn) {
           fullName: user.displayName || "",
           email: user.email,
           role: "passenger",
-          photoURL: user.photoURL || "../../main_img/default-avatar.svg",
+          photoURL: user.photoURL || "../../user_assets/user_img/default-avatar.svg",
           createdAt: serverTimestamp(),
         };
         await setDoc(userRef, userData);
@@ -163,7 +175,6 @@ if (googleLoginBtn) {
         userData = docSnap.data();
       }
 
-      // ✅ Save session
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
       Swal.fire("Success", `Welcome back, ${user.displayName}!`, "success").then(() => {
@@ -192,11 +203,7 @@ if (logoutBtn) {
       reverseButtons: true
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
-          await signOut(auth);
-        } catch (err) {
-          console.warn("SignOut error:", err);
-        }
+        try { await signOut(auth); } catch (err) { console.warn("SignOut error:", err); }
 
         localStorage.removeItem("currentUser");
 
@@ -206,9 +213,7 @@ if (logoutBtn) {
           icon: "success",
           timer: 2000,
           showConfirmButton: false,
-          willClose: () => {
-            window.location.href = "/index.html";
-          }
+          willClose: () => { window.location.href = "/index.html"; }
         });
       }
     });

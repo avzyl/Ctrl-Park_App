@@ -563,6 +563,48 @@ main .planning .item > i{
     color: #000;
 }
 
+/* Weekly / history item container */
+.weekly {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; /* stack items vertically */
+    gap: 12px;
+    width: 100%;
+}
+
+/* Each parking history item */
+.weekly .history-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 12px;
+    background: #F7F7F7;
+    border-radius: 16px;
+}
+
+/* Left line indicator */
+.weekly .history-item .line {
+    width: 6px;
+    border-radius: 20px;
+    height: 100%; /* full height of content */
+    background-color: #006ED3; /* default */
+}
+
+/* Line color based on type */
+.weekly .history-item[data-type="entry"] .line {
+    background-color: #28a745; /* green */
+}
+.weekly .history-item[data-type="exit"] .line {
+    background-color: #dc3545; /* red */
+}
+
+/* Details stacked vertically */
+.weekly .history-item .details p {
+    margin: 2px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
 
 /* video feed */
 .video-container img {
@@ -672,6 +714,11 @@ main .planning .item > i{
     main .analytics .item i{
         display: none;
     }
+    
+    main .analytics{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
 
     main .planning{
         grid-template-columns: 1fr;
@@ -716,6 +763,12 @@ main .planning .item > i{
     .container .right-section .weekly{
         margin-bottom: 20px;
     }
+    
+    main .analytics{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
     
     main .analytics .item{
         height: auto;

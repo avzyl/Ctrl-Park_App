@@ -10,6 +10,13 @@
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     
     <title>Ctrl+Park</title>
 </head>
@@ -94,88 +101,40 @@
                         <canvas id="mapCanvas" width="600" height="400"></canvas>
                     </div>
                 </div>
-                <div class="item">
-                    <div class="progress">
-                        <div class="info">
-                            <h5>People</h5>
-                            <p>30 Lessons</p>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                            aria-valuemax="100"></div>
-                    </div>
-                    <i class='bx bx-user-voice'></i>
-                </div>
-                <div class="item">
-                    <div class="progress">
-                        <div class="info">
-                            <h5>Airport</h5>
-                            <p>45 Lessons</p>
-                        </div>
-                        <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                            aria-valuemax="100"></div>
-                    </div>
-                    <i class='bx bxs-plane-land'></i>
-                </div>
             </div>
 
+            <!-- history -->
             <div class="separator">
                 <div class="info">
-                    <h3>Planning</h3>
+                    <h3>History</h3>
                     <a href="#">View All</a>
                 </div>
-                <input type="date" value="2023-10-15">
+                <input type="date" id="history-calendar">
+            </div>
+            
+            <div class="weekly">
+                <div class="history-item" data-type="entry">
+                    <div class="line"></div>
+                    <div class="details">
+                        <h5 class="date">2025-09-29</h5>
+                        <p class="slot">Round-about</p>
+                        <p class="type">Entry</p>
+                        <p class="time">08:00</p>
+                    </div>
+                </div>
+
+                <div class="history-item" data-type="exit">
+                    <div class="line"></div>
+                    <div class="details">
+                        <h5 class="date">2025-09-29</h5>
+                        <p class="slot">Round-about</p>
+                        <p class="type">Exit</p>
+                        <p class="time">12:30</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="planning">
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx bx-book-alt'></i>
-                        </div>
-                        <div class="details">
-                            <h5>Reading - Topic 1</h5>
-                            <p>8:00 - 10:00</p>
-                        </div>
-                    </div>
-                    <i class='bx bx-dots-vertical-rounded'></i>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx bx-edit-alt'></i>
-                        </div>
-                        <div class="details">
-                            <h5>Writing - Topic 2</h5>
-                            <p>13:00 - 14:00</p>
-                        </div>
-                    </div>
-                    <i class='bx bx-dots-vertical-rounded'></i>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx bx-headphone'></i>
-                        </div>
-                        <div class="details">
-                            <h5>Listening - Topic 1</h5>
-                            <p>15:00 - 16:00</p>
-                        </div>
-                    </div>
-                    <i class='bx bx-dots-vertical-rounded'></i>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx bx-volume-low'></i>
-                        </div>
-                        <div class="details">
-                            <h5>Listening - Topic 2</h5>
-                            <p>19:00 - 20:00</p>
-                        </div>
-                    </div>
-                    <i class='bx bx-dots-vertical-rounded'></i>
-                </div>
-            </div>
+
         </main>
 
         <aside class="right-section">
