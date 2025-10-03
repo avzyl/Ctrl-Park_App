@@ -6,7 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>    
+
+    <!--=============== BOXICONS ===============-->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!--=============== CUSTOM CSS ===============-->
+    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
+
     <title>Parking | Ctrl+Park</title>
 </head>
 
@@ -248,6 +256,38 @@
         </aside>
 
     </div>
+
+    <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
+    <header class="header" id="header">
+        <nav class="nav container">
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                <li class="nav__item">
+                    <a href="../home/home.html" class="nav__link">
+                    <i class='bx bx-home-alt nav__icon'></i>
+                    <span class="nav__name">Home</span>
+                    </a>
+                </li>
+
+                <li class="nav__item">
+                    <a href="#" class="nav__link active-link">
+                    <i class='bx bx-grid-alt nav__icon'></i>
+                    <span class="nav__name">Parking</span>
+                    </a>
+                </li>
+
+                <li class="nav__item">
+                    <a href="../settings/settings.html" class="nav__link">
+                    <i class='bx bx-cog nav__icon'></i>
+                    <span class="nav__name">Settings</span>
+                    </a>
+                </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
 
     <script src="../../../../user_assets/user_js/user_script.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>

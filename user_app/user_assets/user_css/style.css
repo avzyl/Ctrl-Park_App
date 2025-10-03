@@ -781,3 +781,40 @@ main .planning .item > i{
     }
 
 }
+
+/* Hide left sidebar + hamburger but keep right-section */
+@media screen and (max-width: 1200px) {
+  .container .left-section {
+    display: none !important;
+  }
+
+  .menu-btn {
+    display: none !important;
+  }
+
+    .right-section {
+        margin-bottom: 5rem;
+    }
+}
+
+/* Show sidebar only on large devices */
+@media screen and (max-width: 767px) {
+    .left-section {
+        display: none;
+    }
+
+    .right-section {
+        margin-bottom: 5rem;
+    }
+}
+
+/* Hide bottom navbar on desktop */
+@media screen and (min-width: 768px) {
+    .header {
+    display: none;
+    }
+
+    .div.top {
+        position: top;
+    }
+}
