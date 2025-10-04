@@ -118,7 +118,7 @@ b{
     width: 96%;
     margin: 0 auto;
     gap: 1.8rem;
-    grid-template-columns: 12rem auto 23rem;
+    grid-template-columns: 12rem auto 40rem;
 }
 
 aside{
@@ -444,19 +444,12 @@ main .recent-orders a{
     transition: all 0.3s ease;
 }
 
-.right-section .user-profile:hover{
-    box-shadow: none;
-}
-
-.right-section .user-profile img{
-    width: 11rem;
-    height: auto;
-    margin-bottom: 0.8rem;
-    border-radius: 50%;
-}
-
-.right-section .user-profile h2{
-    margin-bottom: 0.2rem;
+/* video feed */
+.video-container img {
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .right-section .reminders{

@@ -88,7 +88,7 @@ if (signupForm) {
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
         if (role === "admin") {
           window.location.href =
-            "admin_app/features/authentication/screens/registration/registration.html";
+            "admin_app/features/system/screens/users/users.html";
         } else {
           window.location.href = "user_app/features/system/screens/home/home.html";
         }
