@@ -28,6 +28,7 @@ i{
     align-items: center;
     justify-content: space-between;
     padding: 40px 0;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .container .left-section .logo{
@@ -621,6 +622,17 @@ main .planning .item > i{
 
 .logout-btn {
   color: #f44336;
+  padding: 15px;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: none;
+  text-decoration: none;
+}
+
+.info-btn {
+  color: #369FFF;
   padding: 15px;
   border: none;
   text-align: center;
