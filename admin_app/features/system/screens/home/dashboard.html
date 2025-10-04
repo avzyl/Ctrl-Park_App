@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <title>Dashboard | Ctrl+Park</title>
 </head>
 
@@ -76,12 +84,11 @@
                     </span>
                     <h3>Settings</h3>
                 </a>
-                <a href="#">
-                    <span class="material-icons-sharp">
-                        logout
-                    </span>
+                <a href="#" id="logout-btn">
+                    <span class="material-icons-sharp">logout</span>
                     <h3>Logout</h3>
                 </a>
+
             </div>
         </aside>
         <!-- End of Sidebar Section -->
@@ -172,7 +179,7 @@
 
             <!-- Recent Orders Table -->
             <div class="recent-orders">
-                <h2>Recent Orders</h2>
+                <h2>Recent Reports</h2>
                 <table>
                     <thead>
                         <tr>
@@ -211,11 +218,11 @@
 
                 <div class="profile">
                     <div class="info">
-                        <p>Hey, <b>Reza</b></p>
-                        <small class="text-muted">Admin</small>
+                        <p>Hey, <b class="user-name"></b></p>
+                        <small class="text-muted user-role"></small>
                     </div>
                     <div class="profile-photo">
-                        <img src="../../../../admin_assets/admin_img/profile-1.jpg">
+                        <img class="user-photo" src="">
                     </div>
                 </div>
 
@@ -314,8 +321,8 @@
 
     </div>
 
-    <script src="../../../../admin_assets/admin_js/orders.js"></script>
     <script src="../../../../admin_assets/admin_js/index.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
 </body>
 
 </html>

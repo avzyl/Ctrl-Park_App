@@ -88,7 +88,7 @@ if (signupForm) {
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
         if (role === "admin") {
           window.location.href =
-            "admin_app/features/system/screens/users/users.html";
+            "users.html";
         } else {
           window.location.href = "user_app/features/system/screens/home/home.html";
         }
@@ -156,7 +156,7 @@ if (adminForm) {
 
       Swal.fire("Success", "Admin account created successfully!", "success").then(() => {
         window.location.href =
-          "admin_app/features/authentication/screens/registration/registration.html";
+          "users.html";
       });
     } catch (error) {
       console.error("Admin registration error:", error);
