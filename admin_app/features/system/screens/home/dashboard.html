@@ -14,6 +14,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+        // Prevent any content from flashing
+        document.documentElement.style.display = "none";
+
+        // Redirect immediately
+        window.location.href = "/index.html";
+    }
+    </script>
+
     <title>Dashboard | Ctrl+Park</title>
 </head>
 
@@ -237,8 +250,8 @@
                     </div>
                     <!-- ✅ Live stream video -->
                     <img 
-                    src="https://stream.bsitport2026.com/video_feed" 
-                    alt="Live Stream" 
+                    src="https://stream.bsitport2026.com/scanner/video_feed" 
+                    alt="Gate Live Stream" 
                     id="liveStream"
                     >
                 </div>
@@ -252,8 +265,8 @@
                     </div>
                     <!-- ✅ Live stream video -->
                     <img 
-                    src="https://stream.bsitport2026.com/video_feed" 
-                    alt="Live Stream" 
+                    src="https://stream.bsitport2026.com/parking/video_feed" 
+                    alt="Parking Live Stream" 
                     id="liveStream"
                     >
                 </div>
@@ -323,6 +336,7 @@
 
     <script src="../../../../admin_assets/admin_js/index.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
 </body>
 
 </html>

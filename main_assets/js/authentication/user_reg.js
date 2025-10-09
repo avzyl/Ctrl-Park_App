@@ -329,3 +329,30 @@ if (infoBtn) {
     });
   });
 }
+
+// ================== ACCESS CONTROL (LOGIN CHECK) ==================
+document.addEventListener("DOMContentLoaded", () => {
+  // List of pages that need login
+  const protectedPaths = [
+    "/admin_app/",
+    "/user_app/"
+  ];
+
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const currentPath = window.location.pathname;
+
+  // Check if this page is protected
+  const isProtected = protectedPaths.some(path => currentPath.includes(path));
+
+  if (isProtected && !currentUser) {
+    // Not logged in, redirect to login page
+    Swal.fire({
+      title: "Access Denied",
+      text: "You must log in first to access this page.",
+      icon: "warning",
+      confirmButtonText: "Go to Login"
+    }).then(() => {
+      window.location.href = "/index.html";
+    });
+  }
+});

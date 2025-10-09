@@ -26,6 +26,7 @@
   height: 100vh;
 }
 
+
 /* Responsive adjustments */
 @media screen and (max-width: 992px) {
   .container {
@@ -306,6 +307,83 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .setcon .planning .item > i {
   cursor: pointer;
 }
+/* parking.css */
+
+/* Map container */
+#map {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  z-index: 0;
+}
+
+/* Directions panel at the bottom */
+#directions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 1rem 1rem 0 0;
+  padding: 12px;
+  font-size: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  display: none;
+  z-index: 1000;
+}
+
+/* Directions header styling */
+#directions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* Close button inside directions */
+#close-directions {
+  cursor: pointer;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Reopen button for directions */
+#reopen-directions {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  display: none;
+  z-index: 1001;
+}
+
+/* Custom marker icon */
+.custom-icon div {
+  border-radius: 50%;
+  border: 2px solid black;
+  width: 14px;
+  height: 14px;
+}
+
+.mapcon {
+  border-right: 0px;
+  border-left: 0px;
+  padding: 0px;
+}
 
 /* -------- Responsive adjustments -------- */
 @media screen and (max-width: 992px) {
@@ -337,6 +415,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   .setcon .planning .item {
     padding: 8px;
   }
+  
+  .mapcon {
+    border-right: 0px;
+    border-left: 0px;
+    padding: 0px;
+  }
+  /* Map container */
+  #map {
+    height: 100vh;
+    width: 100%;
+    z-index: 0;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -355,5 +445,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   
   .container .left-section {
     display: none !important;
+  }
+
+  .mapcon {
+    border-right: 0px;
+    border-left: 0px;
+    padding: 0px;
+  }
+
+  #map {
+    height: 100vh;
+    width: 100%;
+    z-index: 0;
   }
 }

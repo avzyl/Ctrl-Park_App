@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="../../../../user_assets/user_css/parking.css">
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
 
+    <!--=============== LEAFLET ===============-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
     <title>Parking | Ctrl+Park</title>
 </head>
 
@@ -52,15 +57,26 @@
 
         </aside>
 
-        <main>
-            
-        </main>
+        <div class="mapcon">
+            <!-- Map Container -->
+            <div id="map"></div>
+        </div>
+
+        <!-- Directions Panel -->
+        <div id="directions">
+            <div id="directions-header">
+                Routing Directions
+                <button id="close-directions">Close</button>
+            </div>
+            <div id="directions-content"></div>
+        </div>
+        <button id="reopen-directions">📄</button>
 
     </div>
 
     <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
     <header class="header" id="header">
-        <nav class="nav container">
+        <nav class="nav">
 
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
@@ -91,6 +107,7 @@
     </header>
 
     <script src="../../../../user_assets/user_js/user_script.js"></script>
+    <script src="../../../../user_assets/user_js/map.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>
 </body>
 
