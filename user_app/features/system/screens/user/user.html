@@ -49,7 +49,7 @@
                 </div>
                 <div class="item" id="active">
                     <i class='bx bx-cog'></i>
-                    <a href="../settings/settings.html">Setting</a>
+                    <a href="../user/user.html">Setting</a>
                 </div>
             </div>
 
@@ -60,49 +60,78 @@
         </aside>
 
         <div class="setcon">
-            <div class="planning">
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx  bx-user-circle'  ></i> 
-                        </div>
-                        <div class="details">
-                            <h4>Profile</h4>
-                        </div>
+            <!-- Profile Item -->
+            <div class="item profile-item">
+                <div class="left">
+                    <div class="icon">
+                    <img id="user-photo" src="../../../../user_assets/user_img/default-avatar.svg" alt="User Photo">
                     </div>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx  bx-notification'  ></i> 
-                        </div>
-                        <div class="details">
-                            <h4>Notifications</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <div class="icon">
-                            <i class='bx  bx-help-circle'  ></i> 
-                        </div>
-                        <div class="details">
-                            <h4>Help & Support</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="left">
-                        <button id="logout-btn" class="logout-btn">
-                            <i class="bx bx-log-out"></i>
-                        </button>
-                        <div class="details">
-                            <h4>Logout</h4>
-                        </div>
+                    <div class="details">
+                    <h4 id="user-name">User Name</h4>
                     </div>
                 </div>
             </div>
+
+            <div class="planning">
+                <!-- Notifications -->
+                <button class="item btn-item">
+                    <a href="notifications.html">
+                        <div class="left">
+                            <div class="icon">
+                                <i class='bx bx-bell'></i>
+                            </div>
+                            <div class="details">
+                                <h4>Notifications</h4>
+                            </div>
+                        </div>
+                    </a>
+                </button>
+
+                <!-- Report -->
+                <button class="item btn-item">
+                    <a href="reports.html">
+                        <div class="left">
+                            <div class="icon">
+                                <i class='bx  bx-message-exclamation'  ></i> 
+                            </div>
+                            <div class="details">
+                                <h4>Report</h4>
+                            </div>
+                        </div>
+                    </a>
+                </button>
+
+                <!-- Help & Support -->
+                <button class="item btn-item">
+                    <a href="help.html">
+                        <div class="left">
+                            <div class="icon">
+                                <i class='bx bx-help-circle'></i>
+                            </div>
+                            <div class="details">
+                                <h4>Help & Support</h4>
+                            </div>
+                        </div>
+                    </a>
+                </button>
+
+                <!-- Logout -->
+                <button class="item btn-item">
+                    <a href="login.html" onclick="localStorage.removeItem('currentUser')">
+                        <div class="left">
+                            <div class="icon">
+                                <i class="bx bx-log-out"></i>
+                            </div>
+                            <div class="details">
+                                <h4>Logout</h4>
+                            </div>
+                        </div>
+                    </a>
+                </button>
+            </div>
+
         </div>
+
 
     </div>
 
@@ -128,8 +157,8 @@
 
                 <li class="nav__item">
                     <a href="#" class="nav__link active-link">
-                    <i class='bx bx-cog nav__icon'></i>
-                    <span class="nav__name">Settings</span>
+                    <i class='bx bx-user-circle nav__icon'></i>
+                    <span class="nav__name">Profile</span>
                     </a>
                 </li>
 

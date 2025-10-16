@@ -564,49 +564,6 @@ main .planning .item > i{
     color: #000;
 }
 
-/* Weekly / history item container */
-.weekly {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column; /* stack items vertically */
-    gap: 12px;
-    width: 100%;
-}
-
-/* Each parking history item */
-.weekly .history-item {
-    display: flex;
-    gap: 15px;
-    align-items: flex-start;
-    padding: 12px;
-    background: #F7F7F7;
-    border-radius: 16px;
-}
-
-/* Left line indicator */
-.weekly .history-item .line {
-    width: 6px;
-    border-radius: 20px;
-    height: 100%; /* full height of content */
-    background-color: #006ED3; /* default */
-}
-
-/* Line color based on type */
-.weekly .history-item[data-type="entry"] .line {
-    background-color: #28a745; /* green */
-}
-.weekly .history-item[data-type="exit"] .line {
-    background-color: #dc3545; /* red */
-}
-
-/* Details stacked vertically */
-.weekly .history-item .details p {
-    margin: 2px 0;
-    font-size: 16px;
-    text-align: left;
-}
-
-
 /* video feed */
 .video-container img {
   width: 100%;
@@ -642,7 +599,9 @@ main .planning .item > i{
   text-decoration: none;
 }
 
+/* today's history */
 .recent-activity {
+  padding-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -658,6 +617,27 @@ main .planning .item > i{
 }
 
 .recent-card:hover {
+  transform: scale(1.02);
+}
+
+/* monthly history */
+.monthly-activity {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.monthly-card {
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.1));
+  transition: all 0.3s ease;
+}
+
+.monthly-card:hover {
   transform: scale(1.02);
 }
 
@@ -878,6 +858,10 @@ main .planning .item > i{
     }
 
     .container .right-section .weekly{
+        margin-bottom: 20px;
+    }
+
+    .container .right-section .monthly{
         margin-bottom: 20px;
     }
     

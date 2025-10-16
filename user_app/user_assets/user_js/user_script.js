@@ -25,50 +25,82 @@ sidebarItems.forEach(element => {
     });
 });
 
-// calendar
-// Select the input
-const calendarInput = document.getElementById("history-calendar");
+// ========================= CALENDAR ======================= //
+document.addEventListener("DOMContentLoaded", async () => {
+  const calendarInput = document.getElementById("history-calendar");
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-// Get current date in yyyy-mm-dd format
-const today = new Date();
-const year = today.getFullYear();
-const month = String(today.getMonth() + 1).padStart(2, '0');
-const day = String(today.getDate()).padStart(2, '0');
-const formattedDate = `${year}-${month}-${day}`;
+  if (!calendarInput || !currentUser?.plateNumber) return;
 
-// Set input value to today
-calendarInput.value = formattedDate;
+  const plateNumber = currentUser.plateNumber;
 
+  // Philippine "today"
+  const now = new Date();
+  const phToday = new Date(now.getTime() + (8 - now.getTimezoneOffset()/60) * 60*60*1000);
+  const formattedToday = phToday.toISOString().split("T")[0];
+  calendarInput.value = formattedToday;
 
-// flatpckr
-// Example: dates that have parking history
-const parkingDates = ["2025-09-25", "2025-09-27", "2025-09-28"]; // yyyy-mm-dd format
+  try {
+    // Fetch logs
+    const gateSnap = await getDocs(query(collection(db, "gate_logs"), where("plate_number","==",plateNumber)));
+    const roundSnap = await getDocs(query(collection(db, "roundabout"), where("plate_number","==",plateNumber)));
+    const parkSnap = await getDocs(query(collection(db, "parked"), where("plate_number","==",plateNumber)));
 
-flatpickr("#history-calendar", {
-    dateFormat: "Y-m-d",
-    defaultDate: new Date(), // today
-    enable: [
-        function(date) {
-            // Allow all dates (optional: restrict only to parking history)
-            return true;
+    // Collect unique activity dates
+    const allDatesSet = new Set();
+    const addDate = (ts) => {
+      if (!ts) return;
+      let d = ts?.toDate ? ts.toDate() : new Date(ts);
+      // Adjust once to PH timezone
+      const phDate = new Date(d.getTime() + (8 - d.getTimezoneOffset()/60) * 60*60*1000);
+      allDatesSet.add(phDate.toISOString().split("T")[0]);
+    };
+
+    gateSnap.forEach(doc => addDate(doc.data().timestamp));
+    roundSnap.forEach(doc => {
+      const d = doc.data();
+      addDate(d.entry_time);
+      addDate(d.exit_time);
+    });
+    parkSnap.forEach(doc => {
+      const d = doc.data();
+      addDate(d.entry_time);
+      addDate(d.exit_time);
+    });
+
+    const activityDates = Array.from(allDatesSet);
+
+    // Initialize Flatpickr
+    flatpickr("#history-calendar", {
+      dateFormat: "Y-m-d",
+      defaultDate: phToday,
+      onDayCreate: function(dObj, dStr, fp, dayElem) {
+        const dateStr = dayElem.dateObj.toISOString().split("T")[0];
+
+        if (activityDates.includes(dateStr)) {
+          const dot = document.createElement("span");
+          dot.style.width = "6px";
+          dot.style.height = "6px";
+          dot.style.backgroundColor = "#006ED3";
+          dot.style.borderRadius = "50%";
+          dot.style.display = "inline-block";
+          dot.style.marginLeft = "5px";
+          dot.style.verticalAlign = "middle";
+          dayElem.appendChild(dot);
         }
-    ],
-    onDayCreate: function(dObj, dStr, fp, dayElem) {
-        const date = dayElem.dateObj;
-        const formatted = date.toISOString().split("T")[0]; // yyyy-mm-dd
 
-        // Add a dot for dates in parkingDates
-        if (parkingDates.includes(formatted)) {
-            const dot = document.createElement("span");
-            dot.style.width = "6px";
-            dot.style.height = "6px";
-            dot.style.backgroundColor = "#006ED3";
-            dot.style.borderRadius = "50%";
-            dot.style.display = "inline-block";
-            dot.style.marginLeft = "5px";
-            dayElem.appendChild(dot);
+        // Highlight today
+        if (dateStr === formattedToday) {
+          dayElem.style.backgroundColor = "#e0f0ff";
+          dayElem.style.borderRadius = "50%";
+          dayElem.style.fontWeight = "bold";
         }
-    }
+      }
+    });
+
+  } catch(err) {
+    console.error("Failed to fetch activity dates:", err);
+  }
 });
 
 
