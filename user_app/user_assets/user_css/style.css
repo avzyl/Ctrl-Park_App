@@ -642,6 +642,112 @@ main .planning .item > i{
   text-decoration: none;
 }
 
+.recent-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.recent-card {
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.1));
+  transition: all 0.3s ease;
+}
+
+.recent-card:hover {
+  transform: scale(1.02);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 6px;
+}
+
+.card-header h4 {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--primary-color, #006ed3);
+}
+
+.card-body p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: var(--primary-color, #006ed3);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Button styling */
+.notif-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  position: relative;
+}
+
+/* Modal overlay */
+.modal {
+  display: none; /* hidden by default */
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+/* Modal content box */
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Close button */
+.close {
+  color: #333;
+  float: right;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
 
 @media screen and (max-width: 1200px) {
     
@@ -757,10 +863,9 @@ main .planning .item > i{
 }
 
 @media screen and (max-width: 768px) {
-    
     .container{
         grid-template-columns: 1fr;
-        padding-top: 80px;
+        margin-top: 80px;
     }
 
     .container .right-section > .top{

@@ -70,3 +70,30 @@ flatpickr("#history-calendar", {
         }
     }
 });
+
+
+// notif modal
+document.addEventListener("DOMContentLoaded", () => {
+  const notifBtn = document.getElementById("notifBtn");
+  const notifModal = document.getElementById("notifModal");
+  if (!notifBtn || !notifModal) return;
+
+  const closeBtn = notifModal.querySelector(".close");
+
+  // Open modal
+  notifBtn.addEventListener("click", () => {
+    notifModal.style.display = "block";
+  });
+
+  // Close modal on X click
+  closeBtn.addEventListener("click", () => {
+    notifModal.style.display = "none";
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (e) => {
+    if (e.target === notifModal) {
+      notifModal.style.display = "none";
+    }
+  });
+});

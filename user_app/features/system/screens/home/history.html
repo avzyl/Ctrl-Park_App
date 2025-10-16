@@ -66,50 +66,10 @@
                 <h5>Hello <b id="userNameHeader">Guest</b>, welcome back!</h5>
             </header>
 
-
-            <div class="separator">
-                <div class="info">
-                    <h3>Parking</h3>
-                    <!-- <a href="#">View All</a> -->
-                </div>
-                <!-- <div class="search">
-                    <i class='bx bx-search'></i>
-                    <input type="text" placeholder="Search Parking Area">
-                </div> -->
-            </div>
-
-            <div class="analytics">
-                <div class="item">
-                    <div class="progress video-container">
-                        <div class="info">
-                        <h5>Live Stream</h5>
-                        <!-- <p>Parking</p> -->
-                        </div>
-                        <!-- ✅ Live stream video -->
-                        <img 
-                        src="https://stream.bsitport2026.com/video_feed" 
-                        alt="Live Stream" 
-                        id="liveStream"
-                        >
-                    </div>
-                </div>
-                <div class="item">
-                      <div class="progress map-container">
-                        <div class="info">
-                        <h5>2D Map</h5>
-                        <p>Navigation Graph</p>
-                        </div>
-                        <!-- ✅ Canvas for map -->
-                        <canvas id="mapCanvas" width="600" height="400"></canvas>
-                    </div>
-                </div>
-            </div>
-
             <!-- history -->
             <div class="separator">
                 <div class="info">
                     <h3>History</h3>
-                    <a href="history.html">View All</a>
                 </div>
                 <input type="date" id="history-calendar">
             </div>
@@ -122,11 +82,7 @@
 
         <aside class="right-section">
             <div class="top">
-                <!-- Bell button -->
-                <button id="notifBtn" class="notif-btn">
-                    <i class='bx bx-bell'></i>
-                </button>
-
+                <i class='bx bx-bell'></i>
                 <div class="profile">
                     <div class="left">
                         <!-- Profile Picture -->
@@ -144,63 +100,7 @@
                 </div>
             </div>
 
-            <div class="separator" id="first">
-                <h4>Statistics</h4>
-            </div>
-
-            <div class="stats">
-                <div class="item">
-                    <div class="top">
-                    <p>Number of</p>
-                    <p>Entries</p>
-                    </div>
-                    <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="entriesCount">0</h3>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="top">
-                    <p>Number of</p>
-                    <p>Exits</p>
-                    </div>
-                    <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="exitsCount">0</h3>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="top">
-                    <p>Total Time</p>
-                    <p>Parked</p>
-                    </div>
-                    <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="totalTime">0</h3>
-                    </div>
-                </div>
-                <div class="item">
-                    <div class="top">
-                    <p>Violations</p>
-                    </div>
-                    <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="violationsCount">0</h3>
-                    </div>
-                </div>
-            </div>
         </aside>
-
-        <!-- Modal structure -->
-        <div id="notifModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Notifications</h3>
-                <div id="notifList">
-                <p>No new notifications.</p>
-                </div>
-            </div>
-        </div>
 
     </div>
     <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
@@ -210,7 +110,7 @@
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
                 <li class="nav__item">
-                    <a href="#" class="nav__link active-link">
+                    <a href="home.html" class="nav__link active-link">
                     <i class='bx bx-home-alt nav__icon'></i>
                     <span class="nav__name">Home</span>
                     </a>
