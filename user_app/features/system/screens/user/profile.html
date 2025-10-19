@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!--=============== BOXICONS ===============-->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!--=============== CUSTOM CSS ===============-->
+    <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css"> <!-- for settings -->
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
+
+    <title>Ctrl+Park</title>
+</head>
+
+<body>
+    <div class="container">
+        <aside class="left-section">
+            <div class="logo">
+                <button class="menu-btn" id="menu-close">
+                    <i class='bx bx-log-out-circle'></i>
+                </button>
+                <img src="../../../../user_assets/user_img/logo-white.svg">
+                <a href="#">Ctrl+Park</a>
+            </div>
+
+            <div class="sidebar">
+                <div class="item">
+                    <i class='bx bx-home-alt-2'></i>
+                    <a href="../home/home.html">Home</a>
+                </div>
+                <div class="item">
+                    <i class='bx bx-grid-alt'></i>
+                    <a href="../parking/parking.html">Parking</a>
+                </div>
+                <div class="item" id="active">
+                    <i class='bx bx-user-circle'></i>
+                    <a href="#">Profile</a>
+                </div>
+            </div>
+
+            <button id="info-btn" class="info-btn">
+                <i class='bx  bx-info-circle'></i> 
+            </button>
+
+        </aside>
+
+        <div class="setcon">
+            <div class="separator">
+                <div class="info">
+                    <h3>Edit Profile</h3>
+                </div>
+            </div>
+            <div class="back_links">
+                <a href="user.html"><p class="back_link">> Settings</p></a>
+            </div>
+            <!-- Profile Item -->
+            <div class="profile">
+                <div class="user_profile">
+                    <div class="profile_pic">
+                        <img id="user-photo" alt="User Photo">
+                        <div class="upload-section">
+                            <label for="profile-upload" class="upload-btn">Edit Photo</label>
+                            <input type="file" id="profile-upload" accept="image/*" hidden>
+                            <!-- <img id="preview-img" style="display:none; width:120px; height:120px; border-radius:50%; margin-top:10px;"> -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="personal-info">
+                    <!-- personal information -->
+                    <div class="edit">
+                        <h3>Personal Information</h3>
+                        <div class="profile-actions">
+                            <button id="edit-btn" class="edit-btn">Edit</button>
+                        </div>
+                    </div>
+                    <div class="deets">
+                        <p>Full Name</p>
+                        <h4 id="user-name">User Name</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Role</p>
+                        <h4 id="user-role">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Email</p>
+                        <h4 id="user-email">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Address</p>
+                        <h4 id="user-address">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Telephone Number</p>
+                        <h4 id="user-telephoneNo">-</h4>
+                    </div>
+                </div>
+
+                <div class="personal-info">
+                    <!-- vechicle and carpass information -->
+                    <h3>Vehicle Information</h3>
+                    <div class="deets">
+                        <p>CarPass Number</p>
+                        <h4 id="user-idNumber">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Plate Number</p>
+                        <h4 id="user-plateNumber">User Name</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Vehicle</p>
+                        <h4 id="user-vehicle">-</h4>
+                    </div>
+                </div>
+
+                <div class="personal-info">
+                    <!-- personal information -->
+                    <h3>Academic Information</h3>
+                    <div class="deets">
+                        <p>Student Number</p>
+                        <h4 id="user-studentNo">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Department</p>
+                        <h4 id="user-department">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Program</p>
+                        <h4 id="user-program">-</h4>
+                    </div>
+                </div>
+
+                <div class="personal-info">
+                    <!-- personal information -->
+                    <h3>Account Information</h3>
+                    <div class="deets">
+                        <p>Status</p>
+                        <h4 id="user-status">-</h4>
+                    </div>
+                    <div class="deets">
+                        <p>Joined Date</p>
+                        <h4 id="user-joinedDate">-</h4>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="profile-actions">
+                    <button id="save-btn" class="btn hidden">Save</button>
+                    <button id="cancel-btn" class="btn hidden">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
+    <header class="header" id="header">
+        <nav class="nav">
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                <li class="nav__item">
+                    <a href="../home/home.html" class="nav__link">
+                    <i class='bx bx-home-alt nav__icon'></i>
+                    <span class="nav__name">Home</span>
+                    </a>
+                </li>
+
+                <li class="nav__item">
+                    <a href="../parking/parking.html" class="nav__link">
+                    <i class='bx bx-grid-alt nav__icon'></i>
+                    <span class="nav__name">Parking</span>
+                    </a>
+                </li>
+
+                <li class="nav__item">
+                    <a href="#" class="nav__link active-link">
+                    <i class='bx bx-user-circle nav__icon'></i>
+                    <span class="nav__name">Profile</span>
+                    </a>
+                </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <script src="../../../../user_assets/user_js/user_script.js"></script>
+    <script type="module" src="../../../authentication/user_log.js"></script>
+</body>
+
+</html>

@@ -64,20 +64,176 @@
 }
 
 /* Profile responsiveness */
-.profile-item .left {
-  flex-direction: row;
+.profile-item {
+  display: flex;
+  justify-content: center;
   align-items: center;
+  width: 100%;
+  text-align: center;
 }
 
-@media (max-width: 700px) {
-  .profile-item .left {
-    flex-direction: column;
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.user .profile_pic img{
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #2e7bc4;
+}
+
+.user .details h4 {
+  font-size: 1.5rem;
+}
+
+/*--- profile.html ---*/
+.profile {
+  margin-top: 2rem;
+  width: 100%;
+  background: var(--card-bg, #fff);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.1));
+  padding: 3rem;
+  margin-bottom: 3rem;
+}
+
+.user_profile .profile_pic {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.user_profile .profile_pic img {
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #2e7bc4;
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.upload-btn,
+.profile-actions .btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1.5px solid #2e7bc4;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #2e7bc4;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.upload-btn:hover {
+  background: #2e7bc4;
+  color: #fff;
+}
+
+/* personal info */
+.personal-info{
+  margin-top: 2rem;
+  width: 100%;
+  display: inline-block;
+}
+
+.deets {
+  margin-top: 0.5rem;
+}
+
+.profile-actions{
+  margin-top: 1rem;
+}
+
+.hidden {
+  display: none !important;
+}
+
+input.editable {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  padding: 4px;
+  font-size: 1rem;
+  background: #fafafa;
+  border-radius: 4px;
+}
+
+.edit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn {
+  background: none;
+  border: 1px solid #2e7bc4;
+  color: #2e7bc4;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.edit-btn:hover {
+  background: #2e7bc4;
+  color: white;
+}
+
+
+/* Center on small devices */
+@media (max-width: 768px) {
+  .user_profile {
     align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+
+/* Make it responsive */
+@media (max-width: 600px) {
+  .user .profile_pic img{
+    width: 80px;
+    height: 80px;
+  }
+  .user .details h4 {
+    font-size: 1rem;
+  }
+  /* profile.html */
+  .user_profile .profile_pic img{
+    width: 80px;
+    height: 80px;
+  }
+  .user_profile .details h4 {
+    font-size: 1rem;
   }
 
-  .profile-item .icon {
-    margin-right: 0;
-    margin-bottom: 5px;
+  .setcon {
+    margin-top: -5rem;
+  }
+
+  .profile {
+    margin-bottom: 5rem;
   }
 }
 
@@ -91,7 +247,7 @@
 /* Responsive adjustments */
 @media screen and (max-width: 992px) {
   .container {
-    grid-template-columns: 200px 1fr; /* Slightly smaller sidebar */
+    grid-template-columns: 200px 1fr;
   }
 
   .setcon {
@@ -101,7 +257,7 @@
 
 @media screen and (max-width: 768px) {
   .container {
-    grid-template-columns: 1fr; /* Stack vertically */
+    grid-template-columns: 1fr;
   }
 
   .setcon {
@@ -294,7 +450,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: #8AC53E;
 }
 .setcon .analytics .item:nth-child(4) {
-  background: #FFD043;
+  background: #bd5441;
 }
 
 /* Planning Section */
@@ -349,10 +505,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #8AC53E;
 }
 .setcon .planning .item:nth-child(4) .left .icon {
-  background: #F9F0D3;
+  background: #f9d3d3;
 }
 .setcon .planning .item:nth-child(4) .left .icon i {
-  color: #FFD143;
+  color: #f1594e;
 }
 
 /* Planning details text */
@@ -369,6 +525,42 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .setcon .planning .item > i {
   cursor: pointer;
 }
+
+/* btn-border */
+.btn-border {
+  padding: 8px 18px;
+  border: 2px solid #369fff;
+  background: transparent;
+  color: #369fff;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-border:hover {
+  background: #369fff;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(54, 159, 255, 0.4);
+}
+
+.btn-border:active {
+  transform: scale(0.97);
+}
+
+.btn-border:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+a.btn-border {
+  text-decoration: none;
+  display: inline-block;
+}
+
+
 
 /* -------- Responsive adjustments -------- */
 @media screen and (max-width: 992px) {

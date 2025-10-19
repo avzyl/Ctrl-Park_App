@@ -729,6 +729,15 @@ main .planning .item > i{
   cursor: pointer;
 }
 
+/* back link */
+.back_link {
+    text-decoration: none;
+    color:#7a9bb9;
+    text-align: start;
+    font-size: small;
+    font-weight: 600;
+}
+
 @media screen and (max-width: 1200px) {
     
     .container{

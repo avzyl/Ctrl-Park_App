@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         userNameEl.textContent = userData.fullName || "User";
         userRoleEl.textContent = userData.role || "Role";
-        userPhotoEl.src = userData.photoURL || "../../main_img/default-avatar.svg";
+        userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
     }
 });
 
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     userNameEl.textContent = userData.fullName || "User";
     userRoleEl.textContent = userData.role || "Role";
-    userPhotoEl.src = userData.photoURL || "../../main_img/default-avatar.svg";
+    userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
   }
 
   // ======== LOGOUT FUNCTIONALITY ========
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     userNameEl.textContent = userData.fullName || "User";
     userRoleEl.textContent = userData.role || "Role";
-    userPhotoEl.src = userData.photoURL || "../../main_img/default-avatar.svg";
+    userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
   }
 
   // ======== LOGOUT FUNCTIONALITY ========
