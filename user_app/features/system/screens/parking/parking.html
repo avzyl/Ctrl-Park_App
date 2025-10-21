@@ -1,114 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parking | Ctrl+Park</title>
 
-    <!--=============== BOXICONS ===============-->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
-    <!--=============== CUSTOM CSS ===============-->
-    <link rel="stylesheet" href="../../../../user_assets/user_css/parking.css">
-    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
+  <!--=============== BOXICONS ===============-->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-    <!--=============== LEAFLET ===============-->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!--=============== CUSTOM CSS ===============-->
+  <link rel="stylesheet" href="../../../../user_assets/user_css/style.css" />
+  <link rel="stylesheet" href="../../../../user_assets/user_css/parking.css" />
+  <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
 
+  <!--=============== LEAFLET ===============-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <title>Parking | Ctrl+Park</title>
+  <!--=============== FIREBASE AUTH (module) ===============-->
+  <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
 </head>
 
 <body>
+  <div class="container">
+    <aside class="left-section">
+      <div class="logo">
+        <button class="menu-btn" id="menu-close"><i class='bx bx-log-out-circle'></i></button>
+        <img src="../../../../user_assets/user_img/logo-white.svg">
+        <a href="#">Ctrl+Park</a>
+      </div>
 
-    <div class="container">
-
-        <aside class="left-section">
-            <div class="logo">
-                <button class="menu-btn" id="menu-close">
-                    <i class='bx bx-log-out-circle'></i>
-                </button>
-                <img src="../../../../user_assets/user_img/logo-white.svg">
-                <a href="#">Ctrl+Park</a>
-            </div>
-
-            <div class="sidebar">
-                <div class="item">
-                    <i class='bx bx-home-alt-2'></i>
-                    <a href="../home/home.html">Home</a>
-                </div>
-                <div class="item"id="active">
-                    <i class='bx bx-grid-alt'></i>
-                    <a href="#">Parking</a>
-                </div>
-                <div class="item">
-                    <i class='bx bx-user-circle'></i>
-                    <a href="../user/user.html">Profile</a>
-                </div>
-            </div>
-
-            <button id="logout-btn" class="logout-btn">
-                <i class="bx bx-log-out"></i>
-            </button>
-
-        </aside>
-
-        <div class="mapcon">
-            <!-- Map Container -->
-            <div id="map"></div>
+      <div class="sidebar">
+        <div class="item">
+          <i class='bx bx-home-alt-2'></i>
+          <a href="../home/home.html">Home</a>
         </div>
-
-        <!-- Directions Panel -->
-        <div id="directions">
-            <div id="directions-header">
-                Routing Directions
-                <button id="close-directions">Close</button>
-            </div>
-            <div id="directions-content"></div>
+        <div class="item" id="active">
+          <i class='bx bx-grid-alt'></i>
+          <a href="#">Parking</a>
         </div>
-        <button id="reopen-directions">📄</button>
+        <div class="item">
+          <i class='bx bx-user-circle'></i>
+          <a href="../user/user.html">Profile</a>
+        </div>
+      </div>
 
+      <button id="logout-btn" class="logout-btn"><i class="bx bx-log-out"></i></button>
+    </aside>
+
+    <div class="mapcon">
+      <!-- Map Container -->
+      <div id="map" style="height: 100vh; width: 100%;"></div>
     </div>
 
-    <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
-    <header class="header" id="header">
-        <nav class="nav">
+    <!-- Directions Panel -->
+    <div id="directions">
+      <div id="directions-header">
+        Routing Directions
+        <button id="close-directions">Close</button>
+      </div>
+      <div id="directions-content"></div>
+    </div>
+    <button id="reopen-directions">📄</button>
+  </div>
 
-            <div class="nav__menu" id="nav-menu">
-                <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="../home/home.html" class="nav__link">
-                    <i class='bx bx-home-alt nav__icon'></i>
-                    <span class="nav__name">Home</span>
-                    </a>
-                </li>
+  <!--=============== MOBILE NAVBAR ===============-->
+  <header class="header" id="header">
+    <nav class="nav">
+      <div class="nav__menu" id="nav-menu">
+        <ul class="nav__list">
+          <li class="nav__item">
+            <a href="../home/home.html" class="nav__link">
+              <i class='bx bx-home-alt nav__icon'></i>
+              <span class="nav__name">Home</span>
+            </a>
+          </li>
+          <li class="nav__item">
+            <a href="#" class="nav__link active-link">
+              <i class='bx bx-grid-alt nav__icon'></i>
+              <span class="nav__name">Parking</span>
+            </a>
+          </li>
+          <li class="nav__item">
+            <a href="../user/user.html" class="nav__link">
+              <i class='bx bx-user-circle nav__icon'></i>
+              <span class="nav__name">Profile</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
 
-                <li class="nav__item">
-                    <a href="#" class="nav__link active-link">
-                    <i class='bx bx-grid-alt nav__icon'></i>
-                    <span class="nav__name">Parking</span>
-                    </a>
-                </li>
+  <!--=============== USER LOGIC SCRIPTS ===============-->
+  <script src="../../../../user_assets/user_js/user_script.js"></script>
 
-                <li class="nav__item">
-                    <a href="../user/user.html" class="nav__link">
-                    <i class='bx bx-user-circle nav__icon'></i>
-                    <span class="nav__name">Profile</span>
-                    </a>
-                </li>
+  <!-- ✅ IMPORTANT: map.js must be a module (because of Firebase imports) -->
+  <script type="module" src="../../../../user_assets/user_js/map.js"></script>
 
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-    <script src="../../../../user_assets/user_js/user_script.js"></script>
-    <script src="../../../../user_assets/user_js/map.js"></script>
-    <script type="module" src="../../../authentication/user_log.js"></script>
+  <!-- Optional: user login logic -->
+  <script type="module" src="../../../authentication/user_log.js"></script>
 </body>
-
 </html>
