@@ -669,8 +669,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "user-email": "email",
     "user-address": "address",
     "user-telephoneNo": "telephoneNo",
-    "user-plateNumber": "plateNumber",
-    "user-vehicle": "vehicle",
     "user-department": "department",
     "user-program": "program",
   };
