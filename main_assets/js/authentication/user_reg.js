@@ -1,7 +1,17 @@
 // ================== IMPORTS ==================
 import { db, auth, googleProvider } from "./firebase.js";
 import { signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { setDoc, getDoc, doc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {
+  setDoc,
+  getDoc,
+  doc,
+  serverTimestamp,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ================== HELPERS ==================
 function hashPassword(password) {
@@ -272,6 +282,81 @@ if (googleLoginBtn) {
 }
 
 // ================== REMEMBER ME===============
+
+
+// ================== FORGOT PASSWORD ===============
+const resetLink = document.getElementById("reset");
+
+if (resetLink) {
+  resetLink.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const { value: email } = await Swal.fire({
+      title: "Forgot Password?",
+      input: "email",
+      inputLabel: "Enter your registered email",
+      inputPlaceholder: "yourname@mls.ceu.edu.ph",
+      showCancelButton: true,
+      confirmButtonText: "Send Reset Link",
+    });
+
+    if (!email) return;
+
+    try {
+      // 1️⃣ Search user by email in Firestore
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Swal.fire("Error", "No account found with that email.", "error");
+        return;
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      const userId = userDoc.id;
+
+      // 2️⃣ Generate reset token and expiry (15 minutes)
+      const token = Math.random().toString(36).substring(2, 15);
+      const expiry = Date.now() + 1000 * 60 * 15; // 15 minutes
+
+      // 3️⃣ Save the reset token and expiry to Firestore
+      await updateDoc(userDoc.ref, {
+        resetToken: token,
+        resetExpires: expiry,
+      });
+
+      // 4️⃣ Build the actual reset link (update with your real URL)
+      const resetLink = `http://127.0.0.1:5501/reset_password.html?token=${token}&id=${userId}`;
+
+      // 5️⃣ Send email using EmailJS
+      emailjs.init("SKq6rRh-aPDV4uugA");  // 🔑 Your EmailJS public key
+
+      const emailParams = {
+        to_email: email,               // Recipient email (provided by user)
+        reset_link: resetLink,         // Actual reset link
+      };
+
+      // 6️⃣ Send email
+      const response = await emailjs.send("service_nzwwgxd", "template_7r1j3kp", emailParams);
+
+      if (response.status === 200) {
+        Swal.fire(
+          "Email Sent!",
+          "Please check your Gmail for a password reset link. (Valid for 15 minutes)",
+          "success"
+        );
+      } else {
+        Swal.fire("Error", "Failed to send reset link via email.", "error");
+      }
+
+    } catch (error) {
+      console.error("Password reset error:", error);
+      Swal.fire("Error", "An error occurred while sending the reset link.", "error");
+    }
+  });
+}
+
 
 
 // ================== LOGOUT ==================
