@@ -21,6 +21,10 @@
     <!--=============== CUSTOM CSS ===============-->
     <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
+ 
+    <!--=============== LEAFLET ===============-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -91,28 +95,40 @@
             </div>
 
             <div class="analytics">
+
+                <!-- 🟩 LIVE STREAM ITEM -->
                 <div class="item">
                     <div class="progress video-container">
                         <div class="info">
-                        <h5>Live Stream</h5>
-                        <!-- <p>Parking</p> -->
+                            <h5>Live Stream</h5>
                         </div>
-                        <!-- ✅ Live stream video -->
-                        <img 
-                        src="https://stream.bsitport2026.com/parking/video_feed" 
-                        alt="Live Stream" 
-                        id="liveStream"
+
+                        <!-- Clickable image opens modal -->
+                        <img
+                            src="https://stream.bsitport2026.com/parking/video_feed"
+                            alt="Live Stream"
+                            id="liveStream"
+                            class="clickable"
                         >
                     </div>
                 </div>
-                <div class="item">
-                      <div class="progress map-container">
+
+                <!-- 🟦 2D MAP ITEM -->
+                <div class="item1">
+                    <div class="progress map-container clickable" id="mapButton">
                         <div class="info">
-                        <h5>2D Map</h5>
-                        <p>Navigation Graph</p>
+                            <h5>2D Map</h5>
+                            <p>Navigation Graph</p>
                         </div>
-                        <!-- ✅ Canvas for map -->
-                        <canvas id="mapCanvas" width="600" height="400"></canvas>
+                        <div id="map"></div>
+                    </div>
+                </div>
+
+                <!-- 🟥 MODAL for Live Stream Zoom -->
+                <div id="videoModal" class="modal">
+                    <span class="close">&times;</span>
+                    <div class="modal-content">
+                        <img id="modalVideo" src="" alt="Expanded Live Stream">
                     </div>
                 </div>
             </div>
@@ -253,6 +269,39 @@
     <script type="module" src="../../../authentication/user_log.js"></script>
     <script type="module" src="../../../../user_assets/user_js/map.js"></script>
     <script type="module" src="../../../../user_assets/user_js/history.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+        // --- Modal logic for video ---
+        const liveStream = document.getElementById("liveStream");
+        const modal = document.getElementById("videoModal");
+        const modalVideo = document.getElementById("modalVideo");
+        const closeModal = document.querySelector(".close");
+
+        liveStream.addEventListener("click", () => {
+            modal.style.display = "block";
+            modalVideo.src = liveStream.src; // use the same video stream
+        });
+
+        closeModal.addEventListener("click", () => {
+            modal.style.display = "none";
+            modalVideo.src = ""; // stop stream when closed
+        });
+
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+            modal.style.display = "none";
+            modalVideo.src = "";
+            }
+        });
+
+        // --- Redirect for map button ---
+        document.getElementById("mapButton").addEventListener("click", () => {
+            window.location.href = "../parking/parking.html";
+        });
+        });
+    </script>
+
 </body>
 
 </html>

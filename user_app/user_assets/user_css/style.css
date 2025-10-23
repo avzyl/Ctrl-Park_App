@@ -212,6 +212,15 @@ main .analytics{
     margin-top: 20px;
 }
 
+main .analytics .item1{
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+    min-width: 214px;
+    padding: 20px;
+    border-radius: 20px;
+}
+
 main .analytics .item{
     display: flex;
     align-items: center;
@@ -226,12 +235,6 @@ main .analytics .item .progress{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
-
-main .analytics .item .progress .info h5{
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
 }
 
 main .analytics .item .progress .info p{
@@ -293,11 +296,11 @@ main .analytics .item i{
 }
 
 main .analytics .item:nth-child(1){
-    background: #006ED3;
+    background: #81b7e9;
 }
 
-main .analytics .item:nth-child(2){
-    background: #FF993A;
+main .analytics .item1{
+    background: #e7ae79;
 }
 
 main .analytics .item:nth-child(3){
@@ -664,6 +667,60 @@ main .planning .item > i{
   animation: fadeIn 0.4s ease;
 }
 
+/* Make live stream and map clickable */
+.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal Styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  padding-top: 60px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+  margin: auto;
+  display: block;
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 10px;
+}
+
+.modal-content img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.close {
+  position: absolute;
+  top: 25px;
+  right: 35px;
+  color: white;
+  font-size: 35px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #bbb;
+}
+
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
@@ -737,6 +794,29 @@ main .planning .item > i{
     font-size: small;
     font-weight: 600;
 }
+
+/* Responsive map container */
+#map {
+  width: 100%;
+  height: 400px; /* Default height for desktop */
+  border-radius: 12px;
+  z-index: 0;
+}
+
+/* Adjust height for tablets */
+@media (max-width: 1024px) {
+  #map {
+    height: 300px;
+  }
+}
+
+/* Adjust height for mobile devices */
+@media (max-width: 600px) {
+  #map {
+    height: 250px;
+  }
+}
+
 
 @media screen and (max-width: 1200px) {
     
