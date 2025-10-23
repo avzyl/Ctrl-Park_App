@@ -122,6 +122,24 @@ form.sign-in-form {
   font-weight: 500;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field .togglePassword {
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+}
+
+.password-field .togglePassword:hover {
+  color: #000;
+}
+
+
 .social-text {
   padding: 0.7rem 0;
   font-size: 1rem;

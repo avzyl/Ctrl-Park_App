@@ -28,12 +28,15 @@
               <i class="fas fa-id-card"></i>
               <input type="text" name="idNumber" placeholder="ID Number" required />
             </div>
-            <div class="input-field">
+            <div class="input-field password-field">
               <i class="fas fa-lock"></i>
-              <input type="password" name="password" placeholder="Password" required />
+              <input type="password" name="password" id="passwordInput" placeholder="Password" required />
+              <i class="fa-regular fa-eye-slash togglePassword" id="togglePassword"></i>
             </div>
             <div class="sub-buttons">
-              <p class="remember"><i class="fa-regular fa-square"></i>Remember Me</p>
+              <p class="remember" id="rememberToggle">
+                <i class="fa-regular fa-square" id="rememberIcon"></i> Remember Me
+              </p>
               <a href="#" class="forgot" id="reset">Forgot Password?</a>
             </div>
             <input type="submit" value="Login" class="btn solid" />
@@ -234,5 +237,20 @@
     <!-- App logic -->
     <script src="./main_assets/js/app.js"></script>
     <script type="module" src="./main_assets/js/authentication/user_reg.js"></script>
+    <script>
+      const passwordInput = document.getElementById("passwordInput");
+      const togglePassword = document.getElementById("togglePassword");
+
+      if (togglePassword && passwordInput) {
+        togglePassword.addEventListener("click", () => {
+          const isHidden = passwordInput.type === "password";
+          passwordInput.type = isHidden ? "text" : "password";
+
+          togglePassword.classList.toggle("fa-eye");
+          togglePassword.classList.toggle("fa-eye-slash");
+        });
+      }
+
+    </script>
   </body>
 </html>

@@ -178,8 +178,40 @@ if (adminForm) {
   });
 }
 
-// ================== SIGN IN ==================
+// ================== SIGN IN WITH REMEMBER ME ==================
+// Elements
+const rememberToggle = document.getElementById("rememberToggle");
+const rememberIcon = document.getElementById("rememberIcon");
+const idNumberInput = document.getElementById("idNumber");
+const passwordInput = document.getElementById("password");
+
+let rememberActive = false;
+
+// Check saved data on page load
+window.addEventListener("DOMContentLoaded", () => {
+  const savedId = localStorage.getItem("rememberedId");
+  const rememberStatus = localStorage.getItem("rememberStatus");
+
+  if (rememberStatus === "true" && savedId) {
+    idNumberInput.value = savedId;
+    rememberActive = true;
+    rememberIcon.classList.replace("fa-square", "fa-square-check");
+  }
+});
+
+// Toggle icon + status on click
+if (rememberToggle) {
+  rememberToggle.addEventListener("click", () => {
+    rememberActive = !rememberActive;
+    rememberIcon.classList.toggle("fa-square");
+    rememberIcon.classList.toggle("fa-square-check");
+    localStorage.setItem("rememberStatus", rememberActive);
+  });
+}
+
+// =============== Login Logic ===============
 const loginForm = document.getElementById("login-form");
+
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -216,16 +248,26 @@ if (loginForm) {
         return;
       }
 
+      // ✅ Save "Remember Me" state
+      if (rememberActive) {
+        localStorage.setItem("rememberedId", idNumber);
+      } else {
+        localStorage.removeItem("rememberedId");
+        localStorage.removeItem("rememberStatus");
+      }
+
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
       // Redirect based on role
       if (userData.role === "admin") {
         Swal.fire("Welcome Admin!", "Redirecting to dashboard...", "success").then(() => {
-          window.location.href = "admin_app/features/system/screens/home/dashboard.html";
+          window.location.href =
+            "admin_app/features/system/screens/home/dashboard.html";
         });
       } else {
         Swal.fire("Success", `Welcome back, ${userData.fullName}!`, "success").then(() => {
-          window.location.href = "user_app/features/system/screens/home/home.html";
+          window.location.href =
+            "user_app/features/system/screens/home/home.html";
         });
       }
     } catch (error) {
@@ -237,6 +279,7 @@ if (loginForm) {
     }
   });
 }
+
 
 // ================== GOOGLE SIGN IN ==================
 const googleLoginBtn = document.getElementById("google-login");
