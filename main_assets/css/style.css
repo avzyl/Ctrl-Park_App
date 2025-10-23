@@ -60,6 +60,25 @@ form.sign-in-form {
   z-index: 2;
 }
 
+.sub-buttons {
+  display: flex;
+  max-width: 380px;
+  width: 100%;
+}
+
+.remember {
+  text-decoration: none;
+  color: #333;
+  font-size: small;
+}
+
+.forgot {
+  text-decoration: none;
+  color: #333;
+  font-size: small;
+  margin-left: auto;
+}
+
 .title {
   font-size: 2.2rem;
   color: #444;
@@ -151,6 +170,7 @@ form.sign-in-form {
 .btn:hover {
   background-color: #acddef;
 }
+
 .panels-container {
   position: absolute;
   height: 100%;

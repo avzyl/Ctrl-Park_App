@@ -271,6 +271,9 @@ if (googleLoginBtn) {
   });
 }
 
+// ================== REMEMBER ME===============
+
+
 // ================== LOGOUT ==================
 const logoutBtn = document.getElementById("logout-btn");
 if (logoutBtn) {
