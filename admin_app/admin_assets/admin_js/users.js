@@ -204,3 +204,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// Fetch slot data
+async function updateSlotStats() {
+  try {
+    const slotsSnapshot = await getDocs(collection(db, "slots"));
+    let availableCount = 0;
+    let occupiedCount = 0;
+
+    slotsSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.status?.toLowerCase() === "available") availableCount++;
+      else if (data.status?.toLowerCase() === "occupied") occupiedCount++;
+    });
+
+    const totalSlots = availableCount + occupiedCount;
+    const availablePercent = totalSlots ? Math.round((availableCount / totalSlots) * 100) : 0;
+    const occupiedPercent = totalSlots ? Math.round((occupiedCount / totalSlots) * 100) : 0;
+
+    // Update UI
+    document.getElementById("availableCount").textContent = availableCount;
+    document.getElementById("occupiedCount").textContent = occupiedCount;
+    document.getElementById("availablePercent").textContent = `+${availablePercent}%`;
+    document.getElementById("occupiedPercent").textContent = `-${occupiedPercent}%`;
+  } catch (error) {
+    console.error("Error fetching slot stats:", error);
+  }
+}
+
+// Run on load
+window.addEventListener("DOMContentLoaded", updateSlotStats);
