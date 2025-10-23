@@ -656,6 +656,31 @@ main .recent-orders a{
     transition: all 0.3s ease;
 }
 
+.map2d{
+    justify-content: center;
+    text-align: center;
+    margin-top: 1rem;
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.map2d {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.map2d:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.large-map {
+    height: auto;
+}
+
 /* video feed */
 .video-container img {
   width: 100%;
@@ -663,6 +688,28 @@ main .recent-orders a{
   margin-top: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
+
+/* map */
+#map {
+    width: 100%;
+    height: 300px;
+    border-radius: 12px;
+    margin-top: 10px;
+    z-index: 0;
+}
+
+@media (max-width: 768px) {
+    #map {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    #map {
+        height: 200px;
+    }
+}
+
 
 .right-section .reminders{
     margin-top: 2rem;
