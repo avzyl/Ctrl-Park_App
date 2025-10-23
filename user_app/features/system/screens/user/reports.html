@@ -22,7 +22,19 @@
     <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css">
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
 
-    <title>Ctrl+Park</title>
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+            // Prevent any content from flashing
+            document.documentElement.style.display = "none";
+
+            // Redirect immediately
+            window.location.href = "/index.html";
+        }
+    </script>
+
+    <title>Reports | Ctrl+Park</title>
 </head>
 <body>
       <div class="container">

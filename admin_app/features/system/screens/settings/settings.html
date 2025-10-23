@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
+
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+            // Prevent any content from flashing
+            document.documentElement.style.display = "none";
+
+            // Redirect immediately
+            window.location.href = "/index.html";
+        }
+        </script>
+
     <title>Setttings | Ctrl+Park</title>
 </head>
 

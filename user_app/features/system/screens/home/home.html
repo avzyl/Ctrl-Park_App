@@ -22,6 +22,18 @@
     <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
 
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+            // Prevent any content from flashing
+            document.documentElement.style.display = "none";
+
+            // Redirect immediately
+            window.location.href = "/index.html";
+        }
+    </script>
+
     <title>Ctrl+Park</title>
 </head>
 <body>

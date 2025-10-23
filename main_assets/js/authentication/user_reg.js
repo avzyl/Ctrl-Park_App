@@ -436,8 +436,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-
-
 // === CLOUDINARY CONFIG ===
 const CLOUD_NAME = "doy8exjvc";
 const UPLOAD_PRESET = "ctrlpark_uploads";

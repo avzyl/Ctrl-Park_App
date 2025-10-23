@@ -19,6 +19,18 @@
 
   <!--=============== FIREBASE AUTH (module) ===============-->
   <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+        // Prevent any content from flashing
+        document.documentElement.style.display = "none";
+
+        // Redirect immediately
+        window.location.href = "/index.html";
+    }
+  </script>
 </head>
 
 <body>
