@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--=============== BOXICONS ===============-->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!--=============== CUSTOM CSS ===============-->
+  <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
+  <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css">
+  <link rel="stylesheet" href="../../../controllers/assets/css/styles.css">
+
+  <!--=============== SWEETALERT2 ===============-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!--=============== FLATPICKR ===============-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!--=============== AUTH JS ===============-->
+  <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+
+  <!--=============== AUTH CHECK ===============-->
+  <script>
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (!currentUser) {
+      // Prevent content flash
+      document.documentElement.style.display = "none";
+      // Redirect to login
+      window.location.href = "/index.html";
+    }
+  </script>
+
+  <title>Reports | Ctrl+Park</title>
+</head>
+
+<body>
+  <div class="container">
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="left-section">
+      <div class="logo">
+        <button class="menu-btn" id="menu-close">
+          <i class='bx bx-log-out-circle'></i>
+        </button>
+        <img src="../../../../user_assets/user_img/logo-white.svg" alt="Ctrl+Park Logo">
+        <a href="#">Ctrl+Park</a>
+      </div>
+
+      <div class="sidebar">
+        <div class="item" id="active">
+          <i class='bx bx-home-alt'></i>
+          <a href="#">Home</a>
+        </div>
+        <div class="item">
+          <i class='bx bx-grid-alt'></i>
+          <a href="../parking/parking.html">Parking</a>
+        </div>
+        <div class="item">
+          <i class='bx bx-user-circle'></i>
+          <a href="../user/user.html">Profile</a>
+        </div>
+      </div>
+
+      <button id="logout-btn" class="logout-btn">
+        <i class="bx bx-log-out"></i>
+      </button>
+    </aside>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main>
+        <div class="separator">
+            <div class="info">
+                <h3>Submit a Report</h3>
+            </div>
+        </div>
+        <div class="back_links">
+            <a href="reports.html"><p class="back_link">> Reports</p></a>
+        </div>
+
+      <div class="report-container">
+        <h3>What's your concern?</h3>
+
+        <form id="reportForm">
+          <label for="concernType"><strong>Type of Concern:</strong></label>
+          <select id="concernType" required>
+            <option value="">-- Select a concern --</option>
+            <option value="Wrongly marked slot">Wrongly marked slot</option>
+            <option value="System error">System error</option>
+            <option value="Parking violation">Parking violation</option>
+            <option value="Others">Others</option>
+          </select>
+
+          <div id="otherConcernBox" style="display:none; margin-top:10px;">
+            <label for="otherConcern"><strong>Other Concern:</strong></label>
+            <input type="text" id="otherConcern" placeholder="Please specify your concern">
+          </div>
+
+          <label for="message"><strong>Message:</strong></label>
+          <textarea id="message" rows="5" placeholder="Describe your concern..." required></textarea>
+
+          <button type="submit" id="submitReport">Submit Report</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!--=============== BOTTOM NAVBAR ===============-->
+  <header class="header" id="header">
+    <nav class="nav container">
+      <div class="nav__menu" id="nav-menu">
+        <ul class="nav__list">
+          <li class="nav__item">
+            <a href="#" class="nav__link active-link">
+              <i class='bx bx-home-alt nav__icon'></i>
+              <span class="nav__name">Home</span>
+            </a>
+          </li>
+          <li class="nav__item">
+            <a href="../parking/parking.html" class="nav__link">
+              <i class='bx bx-grid-alt nav__icon'></i>
+              <span class="nav__name">Parking</span>
+            </a>
+          </li>
+          <li class="nav__item">
+            <a href="../user/user.html" class="nav__link">
+              <i class='bx bx-user-circle nav__icon'></i>
+              <span class="nav__name">Profile</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!--=============== SCRIPTS ===============-->
+  <script src="assets/js/main.js"></script>
+  <script src="../../../../user_assets/user_js/user_script.js"></script>
+  <script type="module" src="../../../authentication/user_log.js"></script>
+  <script type="module" src="../../../../user_assets/user_js/map.js"></script>
+  <script type="module" src="../../../../user_assets/user_js/history.js"></script>
+  <script type="module" src="../../../../user_assets/user_js/add_report.js"></script>
+</body>
+
+</html>

@@ -1,120 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css" />
+    <script
+      type="module"
+      src="../../../../../main_assets/js/authentication/user_reg.js"
+    ></script>
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
+
     <!--=============== BOXICONS ===============-->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
     <!--=============== CUSTOM CSS ===============-->
-    <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css">
-    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
+    <link
+      rel="stylesheet"
+      href="../../../../user_assets/user_css/settings.css"
+    />
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
+    <!-- for bottom navbar -->
 
     <script>
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-        if (!currentUser) {
-            // Prevent any content from flashing
-            document.documentElement.style.display = "none";
+      if (!currentUser) {
+        // Prevent any content from flashing
+        document.documentElement.style.display = "none";
 
-            // Redirect immediately
-            window.location.href = "/index.html";
-        }
+        // Redirect immediately
+        window.location.href = "/index.html";
+      }
     </script>
 
     <title>Reports | Ctrl+Park</title>
-</head>
-<body>
-      <div class="container">
-
+  </head>
+  <body>
+    <div class="container">
         <aside class="left-section">
             <div class="logo">
-                <button class="menu-btn" id="menu-close">
-                    <i class='bx bx-log-out-circle'></i>
-                </button>
-                <img src="../../../../user_assets/user_img/logo-white.svg">
-                <a href="#">Ctrl+Park</a>
+            <button class="menu-btn" id="menu-close">
+                <i class="bx bx-log-out-circle"></i>
+            </button>
+            <img src="../../../../user_assets/user_img/logo-white.svg" />
+            <a href="#">Ctrl+Park</a>
             </div>
 
             <div class="sidebar">
-                <div class="item" id="active">
-                    <i class='bx bx-home-alt'></i>
-                    <a href="#">Home</a>
-                </div>
-                <div class="item">
-                    <i class='bx bx-grid-alt'></i>
-                    <a href="../parking/parking.html">Parking</a>
-                </div>
-                <div class="item">
-                    <i class='bx bx-user-circle'></i>
-                    <a href="../user/user.html">Profile</a>
-                </div>
+            <div class="item" id="active">
+                <i class="bx bx-home-alt"></i>
+                <a href="#">Home</a>
+            </div>
+            <div class="item">
+                <i class="bx bx-grid-alt"></i>
+                <a href="../parking/parking.html">Parking</a>
+            </div>
+            <div class="item">
+                <i class="bx bx-user-circle"></i>
+                <a href="../user/user.html">Profile</a>
+            </div>
             </div>
 
             <button id="logout-btn" class="logout-btn">
-                <i class="bx bx-log-out"></i>
+            <i class="bx bx-log-out"></i>
             </button>
-
-
         </aside>
 
         <main>
             <div class="separator">
                 <div class="info">
                     <h3>Reports</h3>
-                    <!-- <a href="#">View All</a> -->
                 </div>
+            </div>
+            <div class="back_links">
+                <a href="user.html"><p class="back_link">> Profile</p></a>
             </div>
             <div class="search">
                 <i class='bx bx-search'></i>
-                <input type="text" placeholder="Search Parking Area">
+                <input type="text" placeholder="Search Report">
             </div>
 
+            <div class="report-list" id="reportList">
+              <p>Loading your reports...</p>
+            </div>
+
+            <!-- Report Conversation Modal -->
+            <div id="reportModal" class="modal">
+              <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <h3 id="modalConcern"></h3>
+                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                <hr>
+                <h4>Conversation</h4>
+                <div id="conversation" class="conversation-box"></div>
+
+                <div class="reply-box">
+                  <textarea id="replyMessage" placeholder="Type your reply..."></textarea>
+                  <button id="sendReplyBtn">Send</button>
+                </div>
+              </div>
+            </div>
         </main>
+        
+        <!-- Floating + button (redirects to add_report.html) -->
+        <button class="add-report-btn" id="addReportBtn">+</button>
 
     </div>
     <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
     <header class="header" id="header">
-        <nav class="nav container">
+      <nav class="nav container">
+        <div class="nav__menu" id="nav-menu">
+          <ul class="nav__list">
+            <li class="nav__item">
+              <a href="#" class="nav__link active-link">
+                <i class="bx bx-home-alt nav__icon"></i>
+                <span class="nav__name">Home</span>
+              </a>
+            </li>
 
-            <div class="nav__menu" id="nav-menu">
-                <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="#" class="nav__link active-link">
-                    <i class='bx bx-home-alt nav__icon'></i>
-                    <span class="nav__name">Home</span>
-                    </a>
-                </li>
+            <li class="nav__item">
+              <a href="../parking/parking.html" class="nav__link">
+                <i class="bx bx-grid-alt nav__icon"></i>
+                <span class="nav__name">Parking</span>
+              </a>
+            </li>
 
-                <li class="nav__item">
-                    <a href="../parking/parking.html" class="nav__link">
-                    <i class='bx bx-grid-alt nav__icon'></i>
-                    <span class="nav__name">Parking</span>
-                    </a>
-                </li>
-
-                <li class="nav__item">
-                    <a href="../user/user.html" class="nav__link">
-                    <i class='bx bx-user-circle nav__icon'></i>
-                    <span class="nav__name">Profile</span>
-                    </a>
-                </li>
-
-                </ul>
-            </div>
-        </nav>
+            <li class="nav__item">
+              <a href="../user/user.html" class="nav__link">
+                <i class="bx bx-user-circle nav__icon"></i>
+                <span class="nav__name">Profile</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
     </header>
 
     <!-- Scripts -->
@@ -122,7 +158,10 @@
     <script src="../../../../user_assets/user_js/user_script.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>
     <script type="module" src="../../../../user_assets/user_js/map.js"></script>
-    <script type="module" src="../../../../user_assets/user_js/history.js"></script>
-</body>
-
+    <script type="module" src="../../../../user_assets/user_js/reports.js"></script>
+    <script
+      type="module"
+      src="../../../../user_assets/user_js/history.js"
+    ></script>
+  </body>
 </html>
