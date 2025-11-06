@@ -880,6 +880,46 @@ main .recent-orders a{
   cursor: pointer;
 }
 
+/* action report */
+tr.solved {
+  background-color: #e8fce8 !important;
+  color: #2e7d32;
+}
+
+.solve-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.solve-btn:hover {
+  background: #0056b3;
+}
+
+.solved-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+/* ================= MODAL SOLVED BANNER ================= */
+.solved-banner {
+  background: #e8fce8;
+  border: 1px solid #28a745;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
 @media screen and (max-width: 1200px) {
     .container{
         width: 95%;

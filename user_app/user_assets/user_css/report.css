@@ -905,6 +905,14 @@ main .planning .item > i{
   #map {
     height: 250px;
   }
+  
+  main {
+    margin-top: -5rem;
+  }
+
+  .nav .nav-container{
+    margin: 0;
+  }
 }
 
 

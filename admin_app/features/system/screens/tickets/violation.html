@@ -7,18 +7,9 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
 
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    <!-- =============== LEAFLET =============== -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+    <!-- Firebase + CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
 
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -32,7 +23,7 @@
         }
     </script>
 
-    <title>Dashboard | Ctrl+Park</title>
+    <title>Reports | Ctrl+Park</title>
 </head>
 
 <body>
@@ -53,7 +44,7 @@
             </div>
 
             <div class="sidebar">
-                <a href="#" class="active">
+                <a href="../home/dashboard.html">
                     <span class="material-icons-sharp">
                         dashboard
                     </span>
@@ -81,7 +72,7 @@
                     <span class="material-icons-sharp">
                         mail_outline
                     </span>
-                    <h3>Violation</h3>
+                    <h3>Tickets</h3>
                     <span class="message-count">27</span>
                 </a>
                 <!-- <a href="#">
@@ -90,7 +81,7 @@
                     </span>
                     <h3>Sale List</h3>
                 </a> -->
-                <a href="../reports/reports.html">
+                <a href="#" class="active">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
                     </span>
@@ -102,79 +93,57 @@
                     </span>
                     <h3>Settings</h3>
                 </a>
-                <a href="#" id="logout-btn">
-                    <span class="material-icons-sharp">logout</span>
+                <a href="#">
+                    <span class="material-icons-sharp">
+                        logout
+                    </span>
                     <h3>Logout</h3>
                 </a>
-
             </div>
         </aside>
         <!-- End of Sidebar Section -->
 
         <!-- Main Content -->
         <main>
-            <h1>Dashboard</h1>
-            <div class="analyse">
-                <div class="sales">
-                    <div class="status">
-                    <div class="info">
-                        <h3>Available Slots</h3>
-                        <h1 id="availableCount">0</h1>
-                    </div>
-                    <div class="progresss">
-                        <svg><circle cx="38" cy="38" r="36"></circle></svg>
-                        <div class="percentage"><p id="availablePercent">0%</p></div>
-                    </div>
-                    </div>
-                </div>
-
-                <div class="visits">
-                    <div class="status">
-                    <div class="info">
-                        <h3>Occupied Slots</h3>
-                        <h1 id="occupiedCount">0</h1>
-                    </div>
-                    <div class="progresss">
-                        <svg><circle cx="38" cy="38" r="36"></circle></svg>
-                        <div class="percentage"><p id="occupiedPercent">0%</p></div>
-                    </div>
-                    </div>
-                </div>
-
-                <div class="searches">
-                    <div class="status">
-                    <div class="info">
-                        <h3>Reports</h3>
-                        <h1 id="reportCount">0</h1>
-                    </div>
-                    <div class="progresss">
-                        <svg><circle cx="38" cy="38" r="36"></circle></svg>
-                        <div class="percentage"><p id="reportPercent">0%</p></div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Recent Orders Table -->
+            <h1>Reports</h1>
+            <!-- Reports Table -->
             <div class="recent-orders">
-                <h2>Recent Reports</h2>
                 <table>
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Program</th>
-                            <th>ID Number</th>
-                            <th>Status</th>
-                            <th></th>
+                            <th>Concern</th>
+                            <th>Plate</th>
+                            <th>Date</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="reportTableBody"></tbody>
                 </table>
                 <a href="#">Show All</a>
             </div>
-            <!-- End of Recent Orders -->
+            <!-- End of Reports -->
 
+            <!-- Report Modal -->
+            <div id="reportModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModal" class="close">&times;</span>
+                    <h3 id="modalConcern"></h3>
+                    <p><strong>From:</strong> <span id="modalUserName"></span></p>
+                    <p><strong>ID:</strong> <span id="modalUserId"></span></p>
+                    <p><strong>Plate:</strong> <span id="modalPlate"></span></p>
+                    <p><strong>Message:</strong> <span id="modalMessage"></span></p>
+                    <hr>
+                    <h4>Conversation</h4>
+                    
+                    <div id="conversation" class="conversation-box"></div>
+
+                    <div class="reply-box">
+                        <textarea id="replyMessage" placeholder="Type your reply..."></textarea>
+                        <button id="sendReplyBtn">Send</button>
+                    </div>
+                </div>
+            </div>
         </main>
         <!-- End of Main Content -->
 
@@ -211,13 +180,13 @@
             <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
-                        <h2>Gate 3 Live Stream</h2>
-                        <!-- <p>Parking</p> -->
+                    <h2>Gate 3 Live Stream</h2>
+                    <!-- <p>Parking</p> -->
                     </div>
                     <!-- ✅ Live stream video -->
                     <img 
-                    src="https://stream.bsitport2026.com/scanner/video_feed" 
-                    alt="Gate Live Stream" 
+                    src="https://stream.bsitport2026.com/video_feed" 
+                    alt="Live Stream" 
                     id="liveStream"
                     >
                 </div>
@@ -226,25 +195,15 @@
             <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
-                        <h2>Parking Live Stream</h2>
-                        <!-- <p>Parking</p> -->
+                    <h2>Parking Live Stream</h2>
+                    <!-- <p>Parking</p> -->
                     </div>
                     <!-- ✅ Live stream video -->
                     <img 
-                    src="https://stream.bsitport2026.com/parking/video_feed" 
-                    alt="Parking Live Stream" 
+                    src="https://stream.bsitport2026.com/video_feed" 
+                    alt="Live Stream" 
                     id="liveStream"
                     >
-                </div>
-            </div>
-
-            <div class="map2d">
-                <div class="progress video-container">
-                    <div class="info">
-                    <h2>2D Map</h2>
-                    </div>
-                    
-                    <div id="map"></div>
                 </div>
             </div>
 
@@ -310,16 +269,8 @@
 
     </div>
 
-    <script src="../../../../admin_assets/admin_js/index.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
-    <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
-    <script>
-        document.querySelector(".map2d").addEventListener("click", () => {
-            window.location.href = "parking.html";
-        });
-    </script>
-
+    <script type="module" src="../../../../admin_assets/admin_js/reports.js"></script>
 </body>
 
 </html>

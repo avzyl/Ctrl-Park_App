@@ -83,15 +83,37 @@ function openModal(reportId, report) {
   modalConcern.textContent = report.concernType;
   modalStatus.textContent = report.status || "Pending";
 
+  // Clear old content
+  conversationBox.innerHTML = "";
+
+  // 🟢 Add solved banner if report is marked as solved
+  if (report.status === "solved") {
+    const solvedBanner = document.createElement("div");
+    solvedBanner.className = "solved-banner";
+    solvedBanner.innerHTML = `
+      ✅ <strong>This report has been marked as solved by the admin.</strong>
+    `;
+    conversationBox.appendChild(solvedBanner);
+  }
+
+  // 📨 Conversation messages
   const conversation = report.conversation || [];
-  conversationBox.innerHTML = conversation.length
-    ? conversation.map(msg => `
-        <div class="message ${msg.sender === 'admin' ? 'admin' : 'user'}">
-          <p>${msg.text}</p>
-          <small>${new Date(msg.timestamp).toLocaleString()}</small>
-        </div>
-      `).join("")
-    : "<p class='no-messages'>No messages yet.</p>";
+  if (conversation.length) {
+    conversation.forEach((msg) => {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `message ${msg.sender === "admin" ? "admin" : "user"}`;
+      msgDiv.innerHTML = `
+        <p>${msg.text}</p>
+        <small>${new Date(msg.timestamp).toLocaleString()}</small>
+      `;
+      conversationBox.appendChild(msgDiv);
+    });
+  } else {
+    const noMsg = document.createElement("p");
+    noMsg.className = "no-messages";
+    noMsg.textContent = "No messages yet.";
+    conversationBox.appendChild(noMsg);
+  }
 
   reportModal.style.display = "flex";
 }

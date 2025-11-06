@@ -1,6 +1,6 @@
 // ========================= IMPORT FIREBASE =========================
 import { db } from "../../../main_assets/js/authentication/firebase.js";
-import { collection, getDocs, getDoc, setDoc, addDoc, serverTimestamp } 
+import { collection, getDocs, getDoc, doc, setDoc, addDoc, serverTimestamp } 
   from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ========================= LEAFLET SETUP =========================
@@ -141,22 +141,30 @@ async function fetchSlotStatus() {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       const slotNumber = data.slot_number;
-
-      // 🔧 Convert "1" → "Parking 1"
       const slotName = `Parking ${slotNumber}`;
 
-      parkingStatus[slotName] = (data.status === "Available");
+      // ✅ Use CCTV_status first, then Map_status, then fallback to "status"
+      const cctv = data.CCTV_status || null;
+      const mapStat = data.Map_status || null;
+      const legacy = data.status || null;
+
+      let finalStatus = "Unknown";
+
+      if (cctv) finalStatus = cctv;
+      else if (mapStat) finalStatus = mapStat;
+      else if (legacy) finalStatus = legacy;
+
+      parkingStatus[slotName] = (finalStatus === "Available");
 
       console.log(
-        `Slot: ${slotName} | Firestore: ${data.status} | Parsed: ${
-          parkingStatus[slotName] ? "Available ✅" : "Occupied ❌"
-        }`
+        `📡 Slot: ${slotName} | CCTV: ${cctv} | Map: ${mapStat} | Final: ${finalStatus}`
       );
     });
   } catch (err) {
-    console.error("Error fetching slot status:", err);
+    console.error("❌ Error fetching slot status:", err);
   }
 }
+
 
 
 // ========================= DRAW MARKERS =========================
@@ -257,14 +265,15 @@ window.confirmParking = async function confirmParking(name) {
   const dist = map.distance(carLocation, L.latLng(locations[name]));
   if (dist > PROXIMITY_METERS) return alert("Too far to park.");
 
+  // Local UI update
   parkingStatus[name] = false;
   parkedSlot = name;
   markers[name].setIcon(makeIcon("red"));
   markers[name].bindPopup(`<b>${name}</b><br>Status: ❌ Occupied`).openPopup();
   clearRoute();
 
-  // ✅ Step 1: Push parking info to Firestore (slot_info)
   try {
+    // Step 1: Log parking info
     await addDoc(collection(db, "slot_info"), {
       location: "Gate 3",
       slot_number: name,
@@ -272,58 +281,31 @@ window.confirmParking = async function confirmParking(name) {
       accuracy: null,
       timestamp: serverTimestamp(),
     });
-    console.log(`✅ Slot info for ${name} saved.`);
-  } catch (err) {
-    console.error("❌ Error saving slot info:", err);
-  }
 
-  // ✅ Step 2: Update Firestore slots collection with map + CCTV comparison
-  try {
-    const slotsRef = collection(db, "slots");
-    const slotNumber = name.replace("Parking ", ""); // "Parking 1" → "1"
-    const slotDoc = doc(slotsRef, slotNumber);
+    // Step 2: Update Firestore slot status
+    // ⚙️ Change this line depending on your Firestore doc IDs:
+    const slotRef = doc(db, "slots", name); // or use .replace("Parking", "Slot")
 
-    // Fetch existing slot info (which includes cctv_status)
-    const snap = await getDoc(slotDoc);
-    let cctvStatus = "Unknown";
-
-    if (snap.exists()) {
-      const data = snap.data();
-      if (data.cctv_status) cctvStatus = data.cctv_status;
-    }
-
-    const mapStatus = "Occupied";
-    let accuracy = "Unknown";
-
-    if (cctvStatus === "Unknown") accuracy = "Unknown";
-    else if (cctvStatus === mapStatus) accuracy = "High";
-    else accuracy = "Low";
-
-    await setDoc(slotDoc, {
-      slot_number: slotNumber,
-      location: "Gate 3",
-      Map_status: mapStatus,
-      CCTV_status: cctvStatus,
-      accuracy: accuracy,
-      timestamp: serverTimestamp(),
-    }, { merge: true });
-
-    console.log(
-      `📡 Updated Firestore: ${name} | map=${mapStatus}, cctv=${cctvStatus}, accuracy=${accuracy}`
+    await setDoc(
+      slotRef,
+      {
+        Map_status: "Occupied",
+        CCTV_status: "Occupied",
+        accuracy: "High",
+        timestamp: serverTimestamp(),
+      },
+      { merge: true }
     );
 
-    // ✅ Step 3: Prioritize CCTV status for display on map
-    if (cctvStatus !== "Unknown" && cctvStatus !== mapStatus) {
-      const iconColor = cctvStatus === "Available" ? "green" : "red";
-      markers[name].setIcon(makeIcon(iconColor));
-      markers[name].bindPopup(`<b>${name}</b><br>Status (CCTV): ${cctvStatus}`).openPopup();
-      console.log(`🎥 CCTV override: ${name} shown as ${cctvStatus}`);
-    }
+    console.log(`✅ Firestore updated for ${name} (Occupied)`);
 
+    // Optional: Refresh map
+    await fetchSlotStatus();
   } catch (err) {
-    console.error("❌ Error updating slots collection:", err);
+    console.error("❌ Error updating Firestore:", err);
   }
 };
+
 
 
 // ========================= USER LOCATION LOGIC =========================
