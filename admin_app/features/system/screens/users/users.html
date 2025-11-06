@@ -2,25 +2,31 @@
 <html lang="en">
 
 <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Title -->
+    <title>Register | Ctrl+Park</title>
+    
+    <!-- Stylesheet -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
+    
     <!-- Fontawesome -->
     <script src="https://kit.fontawesome.com/a60b0a6b5e.js" crossorigin="anonymous"></script>
 
     <!-- CryptoJS (global) - MUST load before modules that use CryptoJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Firebase + CryptoJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
-
-    <title>Users | Ctrl+Park</title>
-
+    <!-- Prevention Script -->
     <script>
         if (!currentUser) {
         // Prevent any content from flashing
@@ -35,7 +41,7 @@
 <body>
 
     <div class="container">
-        <!-- Sidebar Section -->
+        <!--=============== SIDEBAR ===============-->
         <aside>
             <div class="toggle">
                 <div class="logo">
@@ -68,12 +74,6 @@
                     </span>
                     <h3>History</h3>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        insights
-                    </span>
-                    <h3>Analytics</h3>
-                </a> -->
                 <a href="#">
                     <span class="material-icons-sharp">
                         mail_outline
@@ -81,12 +81,6 @@
                     <h3>Tickets</h3>
                     <span class="message-count">27</span>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        inventory
-                    </span>
-                    <h3>Sale List</h3>
-                </a> -->
                 <a href="../reports/reports.html">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
@@ -109,7 +103,7 @@
         </aside>
         <!-- End of Sidebar Section -->
 
-        <!-- Main Content -->
+        <!--=============== MAIN CONTENT ===============-->
         <main>
             <h1>Users</h1>
             <!-- New Users Section -->
@@ -221,7 +215,7 @@
         </main>
         <!-- End of Main Content -->
 
-        <!-- Right Section -->
+        <!--=============== RIGHT SIDE ===============-->
         <div class="right-section">
             <div class="nav">
                 <button id="menu-btn">
@@ -252,13 +246,13 @@
             </div>
             <!-- End of Nav -->
 
+            <!-- Video Feeds -->
             <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
                         <h2>Gate 3 Live Stream</h2>
-                        <!-- <p>Parking</p> -->
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- Plate Scanner -->
                     <img 
                     src="https://stream.bsitport2026.com/scanner/video_feed" 
                     alt="Gate Live Stream" 
@@ -271,9 +265,8 @@
                 <div class="progress video-container">
                     <div class="info">
                         <h2>Parking Live Stream</h2>
-                        <!-- <p>Parking</p> -->
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- CCTV Parking -->
                     <img 
                     src="https://stream.bsitport2026.com/parking/video_feed" 
                     alt="Parking Live Stream" 
@@ -282,15 +275,18 @@
                 </div>
             </div>
 
-            <div class="user-profile">
+            <!-- 2d Map -->
+            <div class="map2d">
                 <div class="progress video-container">
                     <div class="info">
-                        <h2>2D Map</h2>
-                        <!-- <p>Parking</p> -->
+                    <h2>2D Map</h2>
                     </div>
+                    
+                    <div id="map"></div>
                 </div>
             </div>
-            
+
+            <!-- Reminders -->
             <div class="reminders">
                 <div class="header">
                     <h2>Reminders</h2>
@@ -345,15 +341,15 @@
                         <h3>Add Reminder</h3>
                     </div>
                 </div>
-
             </div>
-
         </div>
-
-
     </div>
+
+    <!-- Script -->
+    <script src="../../../../admin_assets/admin_js/index.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
 
 </body>
-
 </html>

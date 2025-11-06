@@ -2,11 +2,20 @@
 <html lang="en">
 
 <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+
+    <!-- Title -->
+    <title>History | Ctrl+Park</title>
+
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
 
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+
+    <!-- Prevention Script -->
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -19,13 +28,12 @@
         }
     </script>
 
-    <title>History | Ctrl+Park</title>
 </head>
 
 <body>
 
     <div class="container">
-        <!-- Sidebar Section -->
+        <!--=============== LEFT SIDE ===============-->
         <aside>
             <div class="toggle">
                 <div class="logo">
@@ -58,12 +66,6 @@
                     </span>
                     <h3>History</h3>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        insights
-                    </span>
-                    <h3>Analytics</h3>
-                </a> -->
                 <a href="#">
                     <span class="material-icons-sharp">
                         mail_outline
@@ -71,12 +73,6 @@
                     <h3>Tickets</h3>
                     <span class="message-count">27</span>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        inventory
-                    </span>
-                    <h3>Sale List</h3>
-                </a> -->
                 <a href="../reports/reports.html">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
@@ -99,7 +95,7 @@
         </aside>
         <!-- End of Sidebar Section -->
 
-        <!-- Main Content -->
+        <!--=============== MAIN CONTENT ===============-->
         <main>
             <h1>History</h1>
             <!-- History Section -->
@@ -124,12 +120,9 @@
 
             </div>
         </main>
-
-
-        </main>
         <!-- End of Main Content -->
 
-        <!-- Right Section -->
+        <!--=============== RIGHT SIDE ===============-->
         <div class="right-section">
             <div class="nav">
                 <button id="menu-btn">
@@ -159,13 +152,13 @@
             </div>
             <!-- End of Nav -->
 
-<div class="user-profile">
+            <!-- Video Feeds -->
+            <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
                         <h2>Gate 3 Live Stream</h2>
-                        <!-- <p>Parking</p> -->
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- Plate Scanner -->
                     <img 
                     src="https://stream.bsitport2026.com/scanner/video_feed" 
                     alt="Gate Live Stream" 
@@ -178,9 +171,8 @@
                 <div class="progress video-container">
                     <div class="info">
                         <h2>Parking Live Stream</h2>
-                        <!-- <p>Parking</p> -->
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- CCTV Parking -->
                     <img 
                     src="https://stream.bsitport2026.com/parking/video_feed" 
                     alt="Parking Live Stream" 
@@ -189,6 +181,18 @@
                 </div>
             </div>
 
+            <!-- 2d Map -->
+            <div class="map2d">
+                <div class="progress video-container">
+                    <div class="info">
+                    <h2>2D Map</h2>
+                    </div>
+                    
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- Reminders -->
             <div class="reminders">
                 <div class="header">
                     <h2>Reminders</h2>
@@ -251,6 +255,7 @@
 
     </div>
 
+    <!-- Scripts -->
     <script src="../../../../admin_assets/admin_js/index.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/history.js"></script>

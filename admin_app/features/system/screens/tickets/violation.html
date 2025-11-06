@@ -2,15 +2,27 @@
 <html lang="en">
 
 <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+
+    <!-- Title -->
+    <title>Violations | Ctrl+Park</title>
+
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <!-- Firebase + CryptoJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
 
+    <!-- Prevention Script -->
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -22,14 +34,12 @@
             window.location.href = "/index.html";
         }
     </script>
-
-    <title>Reports | Ctrl+Park</title>
 </head>
 
 <body>
 
     <div class="container">
-        <!-- Sidebar Section -->
+        <!--=============== SIDEBAR ===============-->
         <aside>
             <div class="toggle">
                 <div class="logo">
@@ -62,12 +72,6 @@
                     </span>
                     <h3>History</h3>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        insights
-                    </span>
-                    <h3>Analytics</h3>
-                </a> -->
                 <a href="#">
                     <span class="material-icons-sharp">
                         mail_outline
@@ -75,12 +79,6 @@
                     <h3>Tickets</h3>
                     <span class="message-count">27</span>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        inventory
-                    </span>
-                    <h3>Sale List</h3>
-                </a> -->
                 <a href="#" class="active">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
@@ -103,10 +101,10 @@
         </aside>
         <!-- End of Sidebar Section -->
 
-        <!-- Main Content -->
+        <!--=============== MAIN CONTENT ===============-->
         <main>
-            <h1>Reports</h1>
-            <!-- Reports Table -->
+            <h1>Violation</h1>
+            <!-- Violation Table -->
             <div class="recent-orders">
                 <table>
                     <thead>
@@ -177,16 +175,16 @@
             </div>
             <!-- End of Nav -->
 
+            <!-- Video Feeds -->
             <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
-                    <h2>Gate 3 Live Stream</h2>
-                    <!-- <p>Parking</p> -->
+                        <h2>Gate 3 Live Stream</h2>
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- Plate Scanner -->
                     <img 
-                    src="https://stream.bsitport2026.com/video_feed" 
-                    alt="Live Stream" 
+                    src="https://stream.bsitport2026.com/scanner/video_feed" 
+                    alt="Gate Live Stream" 
                     id="liveStream"
                     >
                 </div>
@@ -195,18 +193,29 @@
             <div class="user-profile">
                 <div class="progress video-container">
                     <div class="info">
-                    <h2>Parking Live Stream</h2>
-                    <!-- <p>Parking</p> -->
+                        <h2>Parking Live Stream</h2>
                     </div>
-                    <!-- ✅ Live stream video -->
+                    <!-- CCTV Parking -->
                     <img 
-                    src="https://stream.bsitport2026.com/video_feed" 
-                    alt="Live Stream" 
+                    src="https://stream.bsitport2026.com/parking/video_feed" 
+                    alt="Parking Live Stream" 
                     id="liveStream"
                     >
                 </div>
             </div>
 
+            <!-- 2d Map -->
+            <div class="map2d">
+                <div class="progress video-container">
+                    <div class="info">
+                    <h2>2D Map</h2>
+                    </div>
+                    
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- Reminders -->
             <div class="reminders">
                 <div class="header">
                     <h2>Reminders</h2>
@@ -269,6 +278,10 @@
 
     </div>
 
+    <!-- Scripts -->
+    <script src="../../../../admin_assets/admin_js/index.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/reports.js"></script>
 </body>
