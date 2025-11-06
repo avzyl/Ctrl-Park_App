@@ -1,18 +1,17 @@
 import { db } from "../../../../../main_assets/js/authentication/firebase.js";
-import { collection, addDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// ======================= ADD REPORT ======================= //
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 const concernTypeSelect = document.getElementById("concernType");
 const otherConcernBox = document.getElementById("otherConcernBox");
 const reportForm = document.getElementById("reportForm");
 
-// 🟢 Show/hide "Other Concern" input box
 concernTypeSelect.addEventListener("change", () => {
   otherConcernBox.style.display = concernTypeSelect.value === "Others" ? "block" : "none";
 });
 
-// 🟢 Handle form submission
+// Handle form submission
 reportForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 

@@ -1,9 +1,9 @@
-// ========================= IMPORT FIREBASE =========================
+// ========================= IMPORT FIREBASE ========================= //
 import { db } from "../../../main_assets/js/authentication/firebase.js";
 import { collection, getDocs, getDoc, doc, setDoc, addDoc, serverTimestamp } 
   from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ========================= LEAFLET SETUP =========================
+// ========================= LEAFLET SETUP ========================= //
 const CENTER = [14.8692841, 120.8012936];
 const PROXIMITY_METERS = 1;
 const VACATE_DISTANCE = 5;
@@ -107,7 +107,7 @@ const routes = {
   ]
 };
 
-// ========================= MAP INIT =========================
+// ========================= MAP INIT ========================= //
 let map = L.map("map").setView(CENTER, 19);
 let markers = {};
 let activePolylines = [];
@@ -122,7 +122,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "© OpenStreetMap contributors",
 }).addTo(map);
 
-// ========================= ICON MAKER =========================
+// ========================= ICON MAKER ========================= //
 function makeIcon(color, size = 14) {
   return L.divIcon({
     className: "custom-icon",
@@ -132,7 +132,7 @@ function makeIcon(color, size = 14) {
   });
 }
 
-// ========================= LOAD PARKING STATUS FROM FIREBASE =========================
+// ========================= LOAD PARKING STATUS FROM FIREBASE ========================= //
 async function fetchSlotStatus() {
   try {
     const querySnapshot = await getDocs(collection(db, "slots"));
@@ -165,9 +165,7 @@ async function fetchSlotStatus() {
   }
 }
 
-
-
-// ========================= DRAW MARKERS =========================
+// ========================= DRAW MARKERS ========================= //
 async function initMarkers() {
   await fetchSlotStatus();
 
@@ -198,7 +196,7 @@ async function initMarkers() {
   showNearestFromGate();
 }
 
-// ========================= ROUTE + DIRECTIONS =========================
+// ========================= ROUTE + DIRECTIONS ========================= //
 function clearRoute() {
   activePolylines.forEach((line) => map.removeLayer(line));
   activePolylines = [];
@@ -231,7 +229,7 @@ document.getElementById("reopen-directions").onclick = () => {
   document.getElementById("reopen-directions").style.display = "none";
 };
 
-// ========================= PARKING LOGIC =========================
+// ========================= PARKING LOGIC ========================= //
 function handleParkingClick(name) {
   if (!parkingStatus[name]) {
     markers[name].bindPopup(`<b>${name}</b><br>Status: ❌ Occupied`).openPopup();
@@ -283,8 +281,7 @@ window.confirmParking = async function confirmParking(name) {
     });
 
     // Step 2: Update Firestore slot status
-    // ⚙️ Change this line depending on your Firestore doc IDs:
-    const slotRef = doc(db, "slots", name); // or use .replace("Parking", "Slot")
+    const slotRef = doc(db, "slots", name);
 
     await setDoc(
       slotRef,
@@ -306,9 +303,7 @@ window.confirmParking = async function confirmParking(name) {
   }
 };
 
-
-
-// ========================= USER LOCATION LOGIC =========================
+// ========================= USER LOCATION LOGIC ========================= //
 map.on("click", (e) => {
   if (carMarker) map.removeLayer(carMarker);
   carLocation = e.latlng;
@@ -332,7 +327,7 @@ map.on("click", (e) => {
   if (nearest) drawRoute(nearest);
 });
 
-// ========================= AUTO-VACATE =========================
+// ========================= AUTO-VACATE ========================= //
 function checkVacateSlot() {
   if (!parkedSlot || !carLocation) return;
   const slotPos = L.latLng(locations[parkedSlot]);
@@ -390,5 +385,5 @@ function showNearestFromGate() {
   if (nearest) drawRoute(nearest);
 }
 
-// ========================= INIT =========================
+// ========================= INIT ========================= //
 document.addEventListener("DOMContentLoaded", initMarkers);

@@ -1,3 +1,4 @@
+// ======================= MENU ======================= //
 const menuOpen = document.getElementById('menu-open');
 const menuClose = document.getElementById('menu-close');
 const sideBar = document.querySelector('.container .left-section');
@@ -104,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-// notif modal
+// ======================= NOTIFICATIONS MODAL ======================= //
 document.addEventListener("DOMContentLoaded", () => {
   const notifBtn = document.getElementById("notifBtn");
   const notifModal = document.getElementById("notifModal");

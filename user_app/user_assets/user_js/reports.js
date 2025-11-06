@@ -1,7 +1,7 @@
 import { db } from "../../../../../main_assets/js/authentication/firebase.js";
-import { collection, query, where, getDocs, orderBy, doc, updateDoc, arrayUnion }
-  from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { collection, query, where, getDocs, orderBy, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// ======================= LOAD REPORTS ======================= //
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 const reportList = document.getElementById("reportList");
 const reportModal = document.getElementById("reportModal");
@@ -66,7 +66,7 @@ async function loadReports() {
         <p><strong>Status:</strong> ${data.status || "Pending"}</p>
       `;
 
-      // 🟢 Make each report clickable
+      // Make each report clickable
       div.addEventListener("click", () => openModal(docSnap.id, data));
       reportList.appendChild(div);
     });
@@ -76,6 +76,7 @@ async function loadReports() {
   }
 }
 
+// ======================= REPORT MODAL ======================= //
 function openModal(reportId, report) {
   selectedReportId = reportId;
   selectedReportData = report;
@@ -86,7 +87,6 @@ function openModal(reportId, report) {
   // Clear old content
   conversationBox.innerHTML = "";
 
-  // 🟢 Add solved banner if report is marked as solved
   if (report.status === "solved") {
     const solvedBanner = document.createElement("div");
     solvedBanner.className = "solved-banner";
@@ -96,7 +96,7 @@ function openModal(reportId, report) {
     conversationBox.appendChild(solvedBanner);
   }
 
-  // 📨 Conversation messages
+  // Conversation messages
   const conversation = report.conversation || [];
   if (conversation.length) {
     conversation.forEach((msg) => {
@@ -118,6 +118,7 @@ function openModal(reportId, report) {
   reportModal.style.display = "flex";
 }
 
+// ======================= SEND REPLY ======================= //
 sendReplyBtn.addEventListener("click", async () => {
   const text = replyMessage.value.trim();
   if (!text || !selectedReportId) return;
@@ -148,9 +149,11 @@ sendReplyBtn.addEventListener("click", async () => {
   }
 });
 
+// close modal
 closeModal.addEventListener("click", () => (reportModal.style.display = "none"));
 window.addEventListener("click", (e) => {
   if (e.target === reportModal) reportModal.style.display = "none";
 });
 
+// init
 document.addEventListener("DOMContentLoaded", loadReports);

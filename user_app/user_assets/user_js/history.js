@@ -1,7 +1,7 @@
 import { db } from "../../../../../main_assets/js/authentication/firebase.js";
 import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// today's history
+// ======================= LOAD TODAY'S HISTORY ======================= //
 document.addEventListener("DOMContentLoaded", async () => {
   const recentContainer = document.querySelector(".recent-activity");
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
