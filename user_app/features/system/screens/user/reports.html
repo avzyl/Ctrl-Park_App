@@ -1,43 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
+
+    <!-- Title -->
+    <title>Reports | Ctrl+Park</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css"/>
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" /> <!-- for bottom navbar -->
     <link rel="stylesheet" href="../../../../user_assets/user_css/report.css" />
-    <script
-      type="module"
-      src="../../../../../main_assets/js/authentication/user_reg.js"
-    ></script>
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Flatpickr CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-    />
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-    <!--=============== BOXICONS ===============-->
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-
-    <!--=============== CUSTOM CSS ===============-->
-    <link
-      rel="stylesheet"
-      href="../../../../user_assets/user_css/settings.css"
-    />
-    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
-    <!-- for bottom navbar -->
-
+    <!-- Prevention Script -->
     <script>
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -49,11 +31,10 @@
         window.location.href = "/index.html";
       }
     </script>
-
-    <title>Reports | Ctrl+Park</title>
   </head>
   <body>
     <div class="container">
+        <!--=============== LEFT SIDE ===============-->
         <aside class="left-section">
             <div class="logo">
             <button class="menu-btn" id="menu-close">
@@ -83,6 +64,7 @@
             </button>
         </aside>
 
+        <!--=============== MAIN CONTENT ===============-->
         <main>
             <div class="separator">
                 <div class="info">
@@ -123,7 +105,8 @@
         <button class="add-report-btn" id="addReportBtn">+</button>
 
     </div>
-    <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
+
+    <!--=============== BOTTOM NAVBAR ===============-->
     <header class="header" id="header">
       <nav class="nav">
         <div class="nav__menu" id="nav-menu">
@@ -155,13 +138,9 @@
 
     <!-- Scripts -->
     <script src="assets/js/main.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
     <script src="../../../../user_assets/user_js/user_script.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>
-    <script type="module" src="../../../../user_assets/user_js/map.js"></script>
     <script type="module" src="../../../../user_assets/user_js/reports.js"></script>
-    <script
-      type="module"
-      src="../../../../user_assets/user_js/history.js"
-    ></script>
   </body>
 </html>

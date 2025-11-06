@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Basic Meta Tags -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Title -->
   <title>Parking | Ctrl+Park</title>
 
-  <!--=============== BOXICONS ===============-->
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../../../user_assets/user_css/style.css" />
+  <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" /> <!-- for bottom navbar -->
+  <link rel="stylesheet" href="../../../../user_assets/user_css/parking.css" />
+  
+  <!-- Boxicons -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
-  <!--=============== CUSTOM CSS ===============-->
-  <link rel="stylesheet" href="../../../../user_assets/user_css/style.css" />
-  <link rel="stylesheet" href="../../../../user_assets/user_css/parking.css" />
-  <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
-
-  <!--=============== LEAFLET ===============-->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!--=============== FIREBASE AUTH (module) ===============-->
-  <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
-
+  
+  <!-- Prevention Script -->
   <script>
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -35,6 +36,7 @@
 
 <body>
   <div class="container">
+    <!--=============== MAIN CONTENT ===============-->
     <aside class="left-section">
       <div class="logo">
         <button class="menu-btn" id="menu-close"><i class='bx bx-log-out-circle'></i></button>
@@ -104,13 +106,10 @@
     </nav>
   </header>
 
-  <!--=============== USER LOGIC SCRIPTS ===============-->
+  <!-- Scripts -->
   <script src="../../../../user_assets/user_js/user_script.js"></script>
-
-  <!-- ✅ IMPORTANT: map.js must be a module (because of Firebase imports) -->
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
   <script type="module" src="../../../../user_assets/user_js/map.js"></script>
-
-  <!-- Optional: user login logic -->
   <script type="module" src="../../../authentication/user_log.js"></script>
 </body>
 </html>

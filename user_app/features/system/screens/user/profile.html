@@ -2,27 +2,25 @@
 <html lang="en">
 
 <head>
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Title -->
+    <title>Profile | Ctrl+Park</title>
+
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
-    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    <!-- Flatpickr CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <!-- Flatpickr JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
-    <!--=============== BOXICONS ===============-->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    
-    <!--=============== CUSTOM CSS ===============-->
     <link rel="stylesheet" href="../../../../user_assets/user_css/settings.css"> <!-- for settings -->
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
-
+    
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Prevetion Script -->
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -34,12 +32,11 @@
             window.location.href = "/index.html";
         }
     </script>
-
-    <title>Profile | Ctrl+Park</title>
 </head>
 
 <body>
     <div class="container">
+        <!--=============== MAIN CONTENT ===============-->
         <aside class="left-section">
             <div class="logo">
                 <button class="menu-btn" id="menu-close">
@@ -181,7 +178,7 @@
 
     </div>
 
-    <!-- BOTTOM NAVBAR (Mobile & Medium devices) -->
+    <!--=============== BOTTOM NAVBAR ===============-->
     <header class="header" id="header">
         <nav class="nav">
 
@@ -213,6 +210,8 @@
         </nav>
     </header>
 
+    <!-- Scripts -->
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
     <script src="../../../../user_assets/user_js/user_script.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>
 </body>
