@@ -1,7 +1,7 @@
 import { db } from "../../../main_assets/js/authentication/firebase.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Wait until DOM is loaded
+// ======================= LOAD ADMIN AND USERS ======================= //
 document.addEventListener("DOMContentLoaded", async () => {
   
   const adminsTableBody = document.querySelector(".admins-table tbody");
@@ -77,23 +77,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 
-// Populate profile dynamically
+// ======================= LOGOUT FUNCTIONALITY ======================= //
 document.addEventListener("DOMContentLoaded", () => {
-    const userData = JSON.parse(localStorage.getItem("currentUser"));
-
-    if (userData) {
-        const userNameEl = document.querySelector(".user-name");
-        const userRoleEl = document.querySelector(".user-role");
-        const userPhotoEl = document.querySelector(".user-photo");
-
-        userNameEl.textContent = userData.fullName || "User";
-        userRoleEl.textContent = userData.role || "Role";
-        userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
-    }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  // ======== DYNAMIC PROFILE ========
   const userData = JSON.parse(localStorage.getItem("currentUser"));
 
   if (userData) {
@@ -106,65 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
     userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
   }
 
-  // ======== LOGOUT FUNCTIONALITY ========
   const logoutBtn = document.getElementById("logout-btn");
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out of your account.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Logout",
-        cancelButtonText: "Cancel",
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            // If using Firebase Auth
-            if (typeof auth !== "undefined") {
-              await auth.signOut();
-            }
-          } catch (err) {
-            console.warn("SignOut error:", err);
-          }
-
-          // Clear localStorage
-          localStorage.removeItem("currentUser");
-
-          Swal.fire({
-            title: "Logged Out",
-            text: "You have been successfully logged out.",
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-            willClose: () => { window.location.href = "/index.html"; } // redirect to login
-          });
-        }
-      });
-    });
-  }
-});
-document.addEventListener("DOMContentLoaded", () => {
-  // ======== DYNAMIC PROFILE ========
-  const userData = JSON.parse(localStorage.getItem("currentUser"));
-
-  if (userData) {
-    const userNameEl = document.querySelector(".user-name");
-    const userRoleEl = document.querySelector(".user-role");
-    const userPhotoEl = document.querySelector(".user-photo");
-
-    userNameEl.textContent = userData.fullName || "User";
-    userRoleEl.textContent = userData.role || "Role";
-    userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
-  }
-
-  // ======== LOGOUT FUNCTIONALITY ========
-  const logoutBtn = document.getElementById("logout-btn");
-
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async (e) => {
       e.preventDefault();
@@ -205,7 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Fetch slot data
+
+// ======================= SLOTS DATA ======================= //
 async function updateSlotStats() {
   try {
     const slotsSnapshot = await getDocs(collection(db, "slots"));

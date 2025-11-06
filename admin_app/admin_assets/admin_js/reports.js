@@ -1,4 +1,3 @@
-// reports.js
 import { db } from "../../../main_assets/js/authentication/firebase.js";
 import {
   collection,
@@ -8,6 +7,7 @@ import {
   arrayUnion,
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// ======================= LOAD REPORTS ======================= //
 const reportTableBody = document.getElementById("reportTableBody");
 const reportModal = document.getElementById("reportModal");
 const closeModal = document.getElementById("closeModal");
@@ -23,7 +23,6 @@ const sendReplyBtn = document.getElementById("sendReplyBtn");
 let selectedReportId = null;
 let selectedReportData = null;
 
-// ======================= LOAD REPORTS =======================
 async function loadReports() {
   const reportsRef = collection(db, "reports");
   const snapshot = await getDocs(reportsRef);
@@ -95,7 +94,7 @@ function createReportRow(report) {
   reportTableBody.appendChild(tr);
 }
 
-// ======================= OPEN MODAL =======================
+// ======================= OPEN MODAL ======================= //
 function openModal(reportId, report) {
   selectedReportId = reportId;
   selectedReportData = report;
@@ -134,7 +133,7 @@ function openModal(reportId, report) {
   reportModal.style.display = "flex";
 }
 
-// ======================= SEND REPLY =======================
+// ======================= SEND REPLY ======================= //
 sendReplyBtn.addEventListener("click", async () => {
   const text = replyMessage.value.trim();
   if (!text || !selectedReportId) return;
@@ -162,7 +161,7 @@ sendReplyBtn.addEventListener("click", async () => {
   }
 });
 
-// ======================= CLOSE MODAL =======================
+// ======================= CLOSE MODAL ======================= //
 closeModal.addEventListener("click", () => {
   reportModal.style.display = "none";
 });
