@@ -9,6 +9,19 @@ const PROXIMITY_METERS = 1;
 const VACATE_DISTANCE = 5;
 const AUTO_VACATE_DELAY = 5000;
 
+// ========================= SLOT NAME CONVERTERS ========================= //
+// Converts "Parking 1" → "slot_1"
+function displayToDocId(displayName) {
+  if (!displayName) return "";
+  return displayName.toLowerCase().replace("parking ", "slot_");
+}
+
+// Converts "slot_1" → "Parking 1"
+function docIdToDisplay(docId) {
+  if (!docId) return "";
+  return docId.replace("slot_", "Parking ");
+}
+
 const locations = {
   // ======== Main Nodes ======== //
   "Gate": [14.869690, 120.801010],
@@ -138,18 +151,17 @@ async function fetchSlotStatus() {
     const querySnapshot = await getDocs(collection(db, "slots"));
     parkingStatus = {}; // reset before refill
 
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      const slotNumber = data.slot_number;
-      const slotName = `Parking ${slotNumber}`;
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const slotDocId = docSnap.id; // e.g. "slot_1"
+      const slotName = docIdToDisplay(slotDocId); // → "Parking 1"
 
-      // ✅ Use CCTV_status first, then Map_status, then fallback to "status"
+      // ✅ Use CCTV_status first, then Map_status, then fallback
       const cctv = data.CCTV_status || null;
       const mapStat = data.Map_status || null;
       const legacy = data.status || null;
 
       let finalStatus = "Unknown";
-
       if (cctv) finalStatus = cctv;
       else if (mapStat) finalStatus = mapStat;
       else if (legacy) finalStatus = legacy;
@@ -160,6 +172,12 @@ async function fetchSlotStatus() {
         `📡 Slot: ${slotName} | CCTV: ${cctv} | Map: ${mapStat} | Final: ${finalStatus}`
       );
     });
+
+    for (const name in markers) {
+      if (parkingStatus[name] !== undefined) {
+        markers[name].setIcon(makeIcon(parkingStatus[name] ? "green" : "red"));
+      }
+    }
   } catch (err) {
     console.error("❌ Error fetching slot status:", err);
   }
@@ -280,21 +298,24 @@ window.confirmParking = async function confirmParking(name) {
       timestamp: serverTimestamp(),
     });
 
-    // Step 2: Update Firestore slot status
-    const slotRef = doc(db, "slots", name);
+    // Convert display name → Firestore doc ID
+    const slotDocId = displayToDocId(name);
+    const slotRef = doc(db, "slots", slotDocId);
 
+    // Step 2: Update slot in Firestore
     await setDoc(
       slotRef,
       {
         Map_status: "Occupied",
         CCTV_status: "Occupied",
         accuracy: "High",
+        status: "Occupied",
         timestamp: serverTimestamp(),
       },
       { merge: true }
     );
 
-    console.log(`✅ Firestore updated for ${name} (Occupied)`);
+    console.log(`✅ Firestore updated for ${slotDocId} (Occupied)`);
 
     // Optional: Refresh map
     await fetchSlotStatus();
@@ -328,23 +349,65 @@ map.on("click", (e) => {
 });
 
 // ========================= AUTO-VACATE ========================= //
-function checkVacateSlot() {
+async function checkVacateSlot() {
   if (!parkedSlot || !carLocation) return;
   const slotPos = L.latLng(locations[parkedSlot]);
   const d = map.distance(carLocation, slotPos);
 
   if (d > VACATE_DISTANCE) {
     if (!autoVacateTimeout) {
-      console.log(`Car moved ${Math.round(d)}m away from ${parkedSlot}. Auto-vacate in 5s if still away...`);
-      autoVacateTimeout = setTimeout(() => {
-        const currentD = map.distance(carLocation, slotPos);
-        if (currentD > VACATE_DISTANCE) {
-          parkingStatus[parkedSlot] = true;
-          markers[parkedSlot].setIcon(makeIcon("green"));
-          parkedSlot = null;
-          alert("Slot automatically vacated after 5 seconds.");
-          suggestNearestAfterParking();
+      console.log(`🚗 Car moved ${Math.round(d)}m away from ${parkedSlot}. Auto-vacate in 5s if still away...`);
+
+      autoVacateTimeout = setTimeout(async () => {
+        try {
+          console.log("⏳ Auto-vacate timer fired for", parkedSlot);
+
+          const currentD = map.distance(carLocation, slotPos);
+          console.log(`📏 Distance check after delay: ${currentD.toFixed(2)}m`);
+
+          if (currentD > VACATE_DISTANCE) {
+            // ✅ Local UI update
+            parkingStatus[parkedSlot] = true;
+            markers[parkedSlot].setIcon(makeIcon("green"));
+            markers[parkedSlot].bindPopup(`<b>${parkedSlot}</b><br>Status: ✅ Available`).openPopup();
+            alert(`${parkedSlot} automatically vacated.`);
+
+            // ✅ Determine correct Firestore document ID
+            const slotDocId = displayToDocId(parkedSlot);
+            console.log(`🧩 Updating Firestore doc: slots/${slotDocId}`);
+
+            const slotRef = doc(db, "slots", slotDocId);
+
+            const updateData = {
+              Map_status: "Available",
+              CCTV_status: "Available",
+              accuracy: "High",
+              status: "Available",
+              timestamp: serverTimestamp(),
+            };
+
+            // ✅ Firestore write confirmation
+            await setDoc(slotRef, updateData, { merge: true });
+            console.log(`✅ Firestore updated for ${slotDocId} (Available)`);
+
+            // ✅ Verify Firestore update
+            const snap = await getDoc(slotRef);
+            console.log("🧾 Firestore now:", snap.data());
+
+            // ✅ Force re-fetch of live slot states
+            await fetchSlotStatus();
+
+            // ✅ Suggest nearest slot
+            suggestNearestAfterParking();
+
+            parkedSlot = null;
+          } else {
+            console.log("🚗 Car returned before timer elapsed — no auto-vacate.");
+          }
+        } catch (err) {
+          console.error("❌ Auto-vacate error:", err);
         }
+
         autoVacateTimeout = null;
       }, AUTO_VACATE_DELAY);
     }
@@ -356,19 +419,28 @@ function checkVacateSlot() {
 }
 
 function suggestNearestAfterParking() {
-  if (!carLocation) return;
+  if (!carLocation) {
+    console.warn("🚫 No car location available — skipping nearest slot suggestion.");
+    return;
+  }
+
   let nearest = null,
-    nearestD = Infinity;
-  for (const p in parkingStatus) {
-    if (!parkingStatus[p]) continue;
-    const d = map.distance(carLocation, L.latLng(locations[p]));
+      nearestD = Infinity;
+  for (const name in parkingStatus) {
+    if (!parkingStatus[name]) continue;
+    const d = map.distance(carLocation, L.latLng(locations[name]));
     if (d < nearestD) {
       nearestD = d;
-      nearest = p;
+      nearest = name;
     }
   }
-  if (nearest) drawRoute(nearest);
+
+  if (nearest) {
+    console.log(`✨ Nearest available slot: ${nearest} (${nearestD.toFixed(1)}m away)`);
+    drawRoute(nearest);
+  }
 }
+
 
 function showNearestFromGate() {
   const gate = L.latLng(locations["Gate"]);
