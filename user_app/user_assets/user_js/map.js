@@ -52,7 +52,7 @@ const locations = {
   "Parking 15": [14.869400, 120.801389],
   "Parking 16": [14.869416, 120.801373],
   "Parking 17": [14.869431, 120.801357],
-  "Parking 18": [14.869448, 120.801343],
+  "Parking 18": [14.869448, 120.801350],
 
   // ======== Row 2 ======== //
   "Parking 19": [14.869205, 120.801672],
@@ -276,10 +276,15 @@ function handleParkingClick(name) {
   }
 }
 
+// ========================= GLOBALS FOR HISTORY ========================= //
+let currentHistoryId = null; // track current slot_history document
+
 window.confirmParking = async function confirmParking(name) {
   if (!carLocation) return alert("Click on the map to set your car location.");
   const dist = map.distance(carLocation, L.latLng(locations[name]));
   if (dist > PROXIMITY_METERS) return alert("Too far to park.");
+
+  const currentUser = localStorage.getItem("currentUser") || "Guest";
 
   // Local UI update
   parkingStatus[name] = false;
@@ -289,20 +294,26 @@ window.confirmParking = async function confirmParking(name) {
   clearRoute();
 
   try {
-    // Step 1: Log parking info
-    await addDoc(collection(db, "slot_info"), {
-      location: "Gate 3",
-      slot_number: name,
-      current_user: localStorage.getItem("currentUser") || "Guest",
-      accuracy: null,
-      timestamp: serverTimestamp(),
-    });
+    // ✅ Step 1: Update slot_info document (overwrite or create if not existing)
+    const slotInfoDocId = displayToDocId(name); // e.g., Parking 1 → slot_1
+    const slotInfoRef = doc(db, "slot_info", slotInfoDocId);
 
-    // Convert display name → Firestore doc ID
+    await setDoc(
+      slotInfoRef,
+      {
+        slot_number: name,
+        current_user: currentUser,
+        accuracy: null,
+        timestamp: serverTimestamp(),
+      },
+      { merge: true }
+    );
+    console.log(`📝 slot_info updated for ${slotInfoDocId}`);
+
+    // ✅ Step 2: Update slots collection (same as before)
     const slotDocId = displayToDocId(name);
     const slotRef = doc(db, "slots", slotDocId);
 
-    // Step 2: Update slot in Firestore
     await setDoc(
       slotRef,
       {
@@ -310,12 +321,23 @@ window.confirmParking = async function confirmParking(name) {
         CCTV_status: "Occupied",
         accuracy: "High",
         status: "Occupied",
+        system: "2D Map",
+        current_user: currentUser,
         timestamp: serverTimestamp(),
       },
       { merge: true }
     );
+    console.log(`✅ slots updated for ${slotDocId} (Occupied)`);
 
-    console.log(`✅ Firestore updated for ${slotDocId} (Occupied)`);
+    // ✅ Step 3: Create a new slot_history entry
+    const histRef = await addDoc(collection(db, "slot_history"), {
+      slot_number: name,
+      user: currentUser,
+      parked_time: serverTimestamp(),
+      vacate_time: null,
+    });
+    currentHistoryId = histRef.id;
+    console.log(`🕓 History started for ${name}: ${currentHistoryId}`);
 
     // Optional: Refresh map
     await fetchSlotStatus();
@@ -366,38 +388,57 @@ async function checkVacateSlot() {
           console.log(`📏 Distance check after delay: ${currentD.toFixed(2)}m`);
 
           if (currentD > VACATE_DISTANCE) {
+            const slotDocId = displayToDocId(parkedSlot);
+
             // ✅ Local UI update
             parkingStatus[parkedSlot] = true;
             markers[parkedSlot].setIcon(makeIcon("green"));
             markers[parkedSlot].bindPopup(`<b>${parkedSlot}</b><br>Status: ✅ Available`).openPopup();
             alert(`${parkedSlot} automatically vacated.`);
 
-            // ✅ Determine correct Firestore document ID
-            const slotDocId = displayToDocId(parkedSlot);
-            console.log(`🧩 Updating Firestore doc: slots/${slotDocId}`);
-
+            // ---------------- Firestore Updates ----------------
+            // 1️⃣ slots collection
             const slotRef = doc(db, "slots", slotDocId);
+            await setDoc(
+              slotRef,
+              {
+                Map_status: "Available",
+                CCTV_status: "Available",
+                accuracy: "High",
+                status: "Available",
+                current_user: "",
+                timestamp: serverTimestamp(),
+              },
+              { merge: true }
+            );
+            console.log(`✅ slots updated for ${slotDocId} (Available)`);
 
-            const updateData = {
-              Map_status: "Available",
-              CCTV_status: "Available",
-              accuracy: "High",
-              status: "Available",
-              timestamp: serverTimestamp(),
-            };
+            // 2️⃣ slot_info collection
+            const slotInfoRef = doc(db, "slot_info", slotDocId);
+            await setDoc(
+              slotInfoRef,
+              {
+                current_user: "",
+                timestamp: serverTimestamp(),
+              },
+              { merge: true }
+            );
+            console.log(`📝 slot_info cleared current_user for ${slotDocId}`);
 
-            // ✅ Firestore write confirmation
-            await setDoc(slotRef, updateData, { merge: true });
-            console.log(`✅ Firestore updated for ${slotDocId} (Available)`);
+            // 3️⃣ slot_history collection
+            if (currentHistoryId) {
+              const histRef = doc(db, "slot_history", currentHistoryId);
+              await setDoc(
+                histRef,
+                { vacate_time: serverTimestamp() },
+                { merge: true }
+              );
+              console.log(`🕓 slot_history updated vacate_time for ${currentHistoryId}`);
+              currentHistoryId = null; // reset
+            }
 
-            // ✅ Verify Firestore update
-            const snap = await getDoc(slotRef);
-            console.log("🧾 Firestore now:", snap.data());
-
-            // ✅ Force re-fetch of live slot states
+            // Refresh map and suggest nearest
             await fetchSlotStatus();
-
-            // ✅ Suggest nearest slot
             suggestNearestAfterParking();
 
             parkedSlot = null;
