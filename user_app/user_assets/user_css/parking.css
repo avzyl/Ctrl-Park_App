@@ -36,8 +36,8 @@
 #directions {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 22rem;
+  right: 20rem;
   background: white;
   border-radius: 1rem 1rem 0 0;
   padding: 12px;
@@ -47,6 +47,7 @@
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   display: none;
   z-index: 1000;
+  width: 80%;
 }
 
 /* Directions header styling */
@@ -82,8 +83,8 @@
   font-size: 16px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  display: none;
-  z-index: 1001;
+  display: block; /* for testing – make sure you see it */
+  z-index: 10000; /* on top of map */
 }
 
 /* Custom marker icon */
@@ -97,7 +98,7 @@
 /* ====================== RESPONSIVENE ADJUSTMENT ======================*/
 @media screen and (max-width: 992px) {
   .container {
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 1fr;
     padding: 0;
   }
 }
@@ -129,5 +130,11 @@
     height: 100vh;
     width: 100%;
     z-index: 0;
+  }
+
+  #directions {
+    left: 0;
+    right: 0;
+    width: 100%;
   }
 }
