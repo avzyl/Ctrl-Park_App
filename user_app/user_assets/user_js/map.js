@@ -145,6 +145,30 @@ function makeIcon(color, size = 14) {
   });
 }
 
+// ========================= LOCAL STORAGE SESSION RESTORE ========================= //
+function restoreSession() {
+  const savedSlot = localStorage.getItem("parkedSlot");
+  const savedHistId = localStorage.getItem("currentHistoryId");
+  const savedCarLocation = localStorage.getItem("carLocation");
+
+  if (savedSlot && savedHistId) {
+    parkedSlot = savedSlot;
+    currentHistoryId = savedHistId;
+    console.log("🔄 Restored parked slot from localStorage:", parkedSlot);
+  }
+
+  if (savedCarLocation) {
+    const loc = JSON.parse(savedCarLocation);
+    carLocation = L.latLng(loc.lat, loc.lng);
+    console.log("📍 Restored car location:", carLocation);
+
+    carMarker = L.marker(carLocation, { icon: makeIcon("#0074D9", 18) })
+      .addTo(map)
+      .bindPopup("🚗 Your Location")
+      .openPopup();
+  }
+}
+
 // ========================= LOAD PARKING STATUS FROM FIREBASE ========================= //
 async function fetchSlotStatus() {
   try {
@@ -344,21 +368,33 @@ window.confirmParking = async function confirmParking(name) {
   } catch (err) {
     console.error("❌ Error updating Firestore:", err);
   }
+
+  // ✅ Save session locally
+  localStorage.setItem("parkedSlot", name);
+  localStorage.setItem("currentHistoryId", currentHistoryId);
+  localStorage.setItem("parkedAt", new Date().toISOString());
+  localStorage.setItem("carLocation", JSON.stringify({ lat: carLocation.lat, lng: carLocation.lng }));
+  console.log("💾 Session saved locally:", { name, currentHistoryId });
+
 };
 
 // ========================= USER LOCATION LOGIC ========================= //
 map.on("click", (e) => {
-  if (carMarker) map.removeLayer(carMarker);
   carLocation = e.latlng;
+
+  if (carMarker) map.removeLayer(carMarker);
   carMarker = L.marker(carLocation, { icon: makeIcon("#0074D9", 18) })
     .addTo(map)
     .bindPopup("🚗 Your Location")
     .openPopup();
 
+  // Save car location persistently
+  localStorage.setItem("carLocation", JSON.stringify({ lat: carLocation.lat, lng: carLocation.lng }));
+
   checkVacateSlot();
 
-  let nearest = null,
-    nearestD = Infinity;
+  // Auto-draw route to nearest available slot
+  let nearest = null, nearestD = Infinity;
   for (const p in parkingStatus) {
     if (!parkingStatus[p]) continue;
     const d = map.distance(carLocation, L.latLng(locations[p]));
@@ -412,6 +448,12 @@ async function checkVacateSlot() {
               { merge: true }
             );
             console.log(`✅ slots updated for ${slotDocId} (Available)`);
+
+            // ✅ Clear session from localStorage
+            localStorage.removeItem("parkedSlot");
+            localStorage.removeItem("currentHistoryId");
+            localStorage.removeItem("parkedAt");
+            console.log("🧹 Local session cleared after auto-vacate");
 
             // 2️⃣ slot_info collection
             const slotInfoRef = doc(db, "slot_info", slotDocId);
@@ -499,4 +541,14 @@ function showNearestFromGate() {
 }
 
 // ========================= INIT ========================= //
-document.addEventListener("DOMContentLoaded", initMarkers);
+document.addEventListener("DOMContentLoaded", async () => {
+  restoreSession();
+  await initMarkers();
+
+  // Restore parked slot UI if session exists
+  if (parkedSlot) {
+    markers[parkedSlot].setIcon(makeIcon("red"));
+    markers[parkedSlot].bindPopup(`<b>${parkedSlot}</b><br>Status: ❌ Occupied (Restored)`).openPopup();
+    console.log(`✅ Session restored for ${parkedSlot}`);
+  }
+});
