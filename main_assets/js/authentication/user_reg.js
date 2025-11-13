@@ -428,7 +428,7 @@ if (logoutBtn) {
           icon: "success",
           timer: 2000,
           showConfirmButton: false,
-          willClose: () => { window.location.href = "/index.html"; }
+          willClose: () => { window.location.href = "https://avzyl.github.io/Ctrl-Park_App/"; }
         });
       }
     });
