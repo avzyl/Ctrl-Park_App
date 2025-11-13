@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications | Ctrl+Park</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
+    <link rel="stylesheet" href="../../../../user_assets/user_css/report.css" />
+
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Prevention Script -->
+    <script>
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser) {
+        document.documentElement.style.display = "none";
+        window.location.href = "/index.html";
+      }
+    </script>
+
+    <style>
+      .notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 20px;
+      }
+      .notification {
+        background: #fff;
+        border-radius: 10px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 6px solid transparent;
+        transition: 0.2s;
+      }
+      .notification.available {
+        border-left-color: #2ecc71;
+      }
+      .notification.vacated {
+        border-left-color: #e74c3c;
+      }
+      .notification i {
+        font-size: 22px;
+      }
+      .notification p {
+        margin: 0;
+        color: #333;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!--=============== LEFT SIDE ===============-->
+      <aside class="left-section">
+        <div class="logo">
+          <button class="menu-btn" id="menu-close">
+            <i class="bx bx-log-out-circle"></i>
+          </button>
+          <img src="../../../../user_assets/user_img/logo-white.svg" />
+          <a href="#">Ctrl+Park</a>
+        </div>
+
+        <div class="sidebar">
+          <div class="item">
+            <i class="bx bx-home-alt"></i>
+            <a href="../home/home.html">Home</a>
+          </div>
+          <div class="item">
+            <i class="bx bx-grid-alt"></i>
+            <a href="../parking/parking.html">Parking</a>
+          </div>
+          <div class="item" id="active">
+            <i class="bx bx-bell"></i>
+            <a href="../notifications/notifications.html">Notifications</a>
+          </div>
+        </div>
+
+        <button id="logout-btn" class="logout-btn">
+          <i class="bx bx-log-out"></i>
+        </button>
+      </aside>
+
+      <!--=============== MAIN CONTENT ===============-->
+      <main>
+        <div class="separator">
+          <div class="info">
+            <h3>Notifications</h3>
+          </div>
+        </div>
+        <div class="back_links">
+          <a href="../user/user.html"><p class="back_link">> Profile</p></a>
+        </div>
+
+        <div class="notification-list" id="notificationList">
+          <p>Loading notifications...</p>
+        </div>
+      </main>
+    </div>
+
+    <!--=============== BOTTOM NAVBAR ===============-->
+    <header class="header" id="header">
+      <nav class="nav">
+        <div class="nav__menu" id="nav-menu">
+          <ul class="nav__list">
+            <li class="nav__item">
+              <a href="../home/home.html" class="nav__link">
+                <i class="bx bx-home-alt nav__icon"></i>
+                <span class="nav__name">Home</span>
+              </a>
+            </li>
+
+            <li class="nav__item">
+              <a href="../parking/parking.html" class="nav__link">
+                <i class="bx bx-grid-alt nav__icon"></i>
+                <span class="nav__name">Parking</span>
+              </a>
+            </li>
+
+            <li class="nav__item">
+              <a href="../user/user.html" class="nav__link active-link">
+                <i class="bx bx-user-circle nav__icon"></i>
+                <span class="nav__name">Profile</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Scripts -->
+    <script src="assets/js/main.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+    <script src="../../../../user_assets/user_js/user_script.js"></script>
+    <script type="module" src="../../../authentication/user_log.js"></script>
+    <script type="module" src="../../../../user_assets/user_js/reports.js"></script>
+    <script type="module" src="../../../../user_assets/user_js/notification.js"></script>
+  </body>
+</html>
