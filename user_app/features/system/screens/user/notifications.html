@@ -7,7 +7,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css" />
-    <link rel="stylesheet" href="../../../../user_assets/user_css/report.css" />
+    <link rel="stylesheet" href="../../../../user_assets/user_css/notif.css" />
 
     <!-- Boxicons -->
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
@@ -23,39 +23,6 @@
         window.location.href = "/index.html";
       }
     </script>
-
-    <style>
-      .notification-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 20px;
-      }
-      .notification {
-        background: #fff;
-        border-radius: 10px;
-        padding: 15px 20px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        border-left: 6px solid transparent;
-        transition: 0.2s;
-      }
-      .notification.available {
-        border-left-color: #2ecc71;
-      }
-      .notification.vacated {
-        border-left-color: #e74c3c;
-      }
-      .notification i {
-        font-size: 22px;
-      }
-      .notification p {
-        margin: 0;
-        color: #333;
-      }
-    </style>
   </head>
 
   <body>
@@ -97,14 +64,21 @@
             <h3>Notifications</h3>
           </div>
         </div>
+
         <div class="back_links">
           <a href="../user/user.html"><p class="back_link">> Profile</p></a>
+        </div>
+
+        <!-- Mark All as Read Button -->
+        <div class="notification-controls">
+          <button id="markAllBtn">Mark all as read</button>
         </div>
 
         <div class="notification-list" id="notificationList">
           <p>Loading notifications...</p>
         </div>
       </main>
+
     </div>
 
     <!--=============== BOTTOM NAVBAR ===============-->

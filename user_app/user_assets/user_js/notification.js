@@ -4,113 +4,218 @@ import {
   collection,
   doc,
   onSnapshot,
-  addDoc,
+  getDocs,
+  setDoc,
+  serverTimestamp,
+  updateDoc,
   query,
   orderBy,
-  getDocs,
-  serverTimestamp
+  getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+// ========================= GLOBALS ========================= //
 const notificationList = document.getElementById("notificationList");
 const slotsRef = collection(db, "slots");
 const notifRef = collection(db, "notifications");
+const notifQuery = query(notifRef, orderBy("timestamp", "desc"));
 
-let lastStatus = {}; // Track last known slot status
+// Get current user
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+if (!currentUser || !currentUser.idNumber) {
+  document.documentElement.style.display = "none";
+  window.location.href = "/index.html";
+}
+const userKey = currentUser.idNumber;
+
+let lastStatus = {};
 
 console.log("🔔 Ctrl+Park Notifications initialized...");
 
-// ========================= 1️⃣ Load Saved Notifications ========================= //
+// ========================= Format Slot Name ========================= //
+function formatSlotName(slotId) {
+  if (!slotId) return "Unknown Slot";
+  const parts = slotId.split("_");
+  if (parts.length === 2 && !isNaN(parts[1])) {
+    return `Slot ${parts[1]}`;
+  }
+  return slotId;
+}
+
+// ========================= Load Saved Notifications ========================= //
 async function loadSavedNotifications() {
   try {
-    const q = query(notifRef, orderBy("timestamp", "desc"));
-    const snapshot = await getDocs(q);
-    notificationList.innerHTML = ""; // Clear placeholder
+    const snapshot = await getDocs(notifQuery);
+    notificationList.innerHTML = "";
 
     if (snapshot.empty) {
       notificationList.innerHTML = `<p>No notifications yet.</p>`;
       return;
     }
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      addNotificationToUI(data.slot, data.message, data.type, false);
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      const slot = data.slot || "Unknown Slot";
+      const isRead = data.readBy?.[userKey] ?? false;
+
+      addNotificationToUI(
+        docSnap.id,
+        slot,
+        data.message || "",
+        data.type || "info",
+        data.timestamp,
+        isRead
+      );
     });
   } catch (err) {
     console.error("❌ Error loading saved notifications:", err);
   }
 }
 
-// ========================= 2️⃣ Watch for Slot Status Changes ========================= //
+// ========================= Watch Slot Status ========================= //
 onSnapshot(slotsRef, (snapshot) => {
   snapshot.docChanges().forEach(async (change) => {
+    const slotId = change.doc.id;
+    const slotName = formatSlotName(slotId);
     const data = change.doc.data();
-    const slotName = change.doc.id;
-    const currentStatus = data.status || "Unknown"; // ✅ Use the correct field
-    const prevStatus = lastStatus[slotName];
+    const status = data.status || "Unknown";
+    const prevStatus = lastStatus[slotId];
 
-    // Only trigger when status actually changes
-    if (prevStatus && prevStatus !== currentStatus) {
-      let message = "";
-      let type = "";
+    if (prevStatus !== status) {
+      const notifDocRef = doc(notifRef, slotId);
 
-      if (currentStatus === "Available") {
-        message = "Slot is now AVAILABLE";
-        type = "available";
-      } else if (currentStatus === "Occupied") {
-        message = "Slot has been OCCUPIED";
-        type = "vacated";
-      }
+      try {
+        const notifSnap = await getDoc(notifDocRef);
+        const existingReadBy = notifSnap.exists() ? notifSnap.data().readBy || {} : {};
 
-      if (message) {
-        addNotificationToUI(slotName, message, type, true);
-        await saveNotification(slotName, message, type);
+        await setDoc(
+          notifDocRef,
+          {
+            slot: slotName,
+            status: status,
+            message: `${slotName} is now ${status.toUpperCase()}`,
+            type: status === "Available" ? "available" : "info",
+            timestamp: serverTimestamp(),
+            readBy: existingReadBy // keep per-user read statuses
+          },
+          { merge: true }
+        );
+
+        lastStatus[slotId] = status;
+        console.log(`💾 Notification updated for ${slotName}`);
+      } catch (err) {
+        console.error("❌ Error updating notification:", err);
       }
     }
-
-    // Update last known status
-    lastStatus[slotName] = currentStatus;
   });
 });
 
-// ========================= 3️⃣ Add Notification to UI ========================= //
-function addNotificationToUI(slot, message, type, showPopup = true) {
+// ========================= Real-time Notifications ========================= //
+onSnapshot(notifQuery, (snapshot) => {
+  notificationList.innerHTML = "";
+
+  if (snapshot.empty) {
+    notificationList.innerHTML = `<p>No notifications yet.</p>`;
+    return;
+  }
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const isRead = data.readBy?.[userKey] ?? false;
+
+    const div = document.createElement("div");
+    div.className = `notification-card ${data.type} ${isRead ? "read" : "unread"}`;
+
+    const slotName = data.slot || "Unknown Slot";
+    const message = data.message || "";
+    const timestamp = data.timestamp?.toDate
+      ? data.timestamp.toDate().toLocaleString()
+      : new Date().toLocaleString();
+
+    div.innerHTML = `
+      <div class="notif-icon">
+        <i class='bx ${data.type === "available" ? "bx-check-circle" : "bx-error"}'></i>
+      </div>
+      <div class="notif-content">
+        <p><b>${slotName}</b>: ${message}</p>
+        <small>${timestamp}</small>
+      </div>
+    `;
+
+    // Mark as read on click (per user)
+    div.addEventListener("click", async () => {
+      const notifDoc = doc(db, "notifications", docSnap.id);
+      const notifSnap = await getDoc(notifDoc);
+      const currentReadBy = notifSnap.data().readBy || {};
+
+      if (!currentReadBy[userKey]) {
+        await updateDoc(notifDoc, { [`readBy.${userKey}`]: true });
+        div.classList.remove("unread");
+        div.classList.add("read");
+      }
+    });
+
+    notificationList.prepend(div);
+  });
+});
+
+// ========================= Add Notification to UI ========================= //
+function addNotificationToUI(id, slot, message, type, timestamp, isRead) {
   const div = document.createElement("div");
-  div.className = `notification ${type}`;
+  div.className = `notification-card ${type} ${isRead ? "read" : "unread"}`;
+
+  const time = timestamp?.toDate ? timestamp.toDate().toLocaleString() : new Date().toLocaleString();
+
   div.innerHTML = `
-    <i class='bx ${type === "available" ? "bx-check-circle" : "bx-error"}'></i>
-    <p><b>${slot}</b>: ${message}</p>
+    <div class="notif-icon">
+      <i class='bx ${type === "available" ? "bx-check-circle" : "bx-error"}'></i>
+    </div>
+    <div class="notif-content">
+      <p><b>${slot}</b>: ${message}</p>
+      <small>${time}</small>
+    </div>
   `;
 
-  // Prepend to the top of the list
+  div.addEventListener("click", async () => {
+    const notifDoc = doc(db, "notifications", id);
+    const notifSnap = await getDoc(notifDoc);
+    const currentReadBy = notifSnap.data().readBy || {};
+
+    if (!currentReadBy[userKey]) {
+      await updateDoc(notifDoc, { [`readBy.${userKey}`]: true });
+      div.classList.remove("unread");
+      div.classList.add("read");
+    }
+  });
+
   notificationList.prepend(div);
-
-  if (showPopup) {
-    Swal.fire({
-      icon: type === "available" ? "success" : "info",
-      title: message,
-      text: `(${slot})`,
-      timer: 2500,
-      showConfirmButton: false
-    });
-  }
 }
 
-// ========================= 4️⃣ Save Notification to Firestore ========================= //
-async function saveNotification(slot, message, type) {
-  try {
-    await addDoc(notifRef, {
-      slot,
-      message,
-      type,
-      timestamp: serverTimestamp()
-    });
-    console.log(`💾 Saved notification for ${slot}`);
-  } catch (err) {
-    console.error("❌ Error saving notification:", err);
-  }
+// ========================= Mark All as Read ========================= //
+async function markAllAsRead() {
+  const snapshot = await getDocs(notifRef);
+  const updates = [];
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const currentReadBy = data.readBy || {};
+    if (!currentReadBy[userKey]) {
+      updates.push(updateDoc(doc(db, "notifications", docSnap.id), { [`readBy.${userKey}`]: true }));
+    }
+  });
+
+  await Promise.all(updates);
+
+  // Update UI
+  document.querySelectorAll(".notification-card.unread").forEach((el) => {
+    el.classList.remove("unread");
+    el.classList.add("read");
+  });
 }
 
-// ========================= 5️⃣ Initialize ========================= //
+// ========================= Initialize ========================= //
 window.addEventListener("DOMContentLoaded", async () => {
   await loadSavedNotifications();
+
+  const markAllBtn = document.getElementById("markAllBtn");
+  if (markAllBtn) markAllBtn.addEventListener("click", markAllAsRead);
 });
