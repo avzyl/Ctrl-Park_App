@@ -1,0 +1,484 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Manrope', sans-serif;
+}
+
+a{
+    text-decoration: none;
+    color: #369FFF;
+}
+
+i{
+    font-size: 24px;
+}
+
+.container{
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  height: 100vh;
+}
+
+/* sidebar */
+.container .left-section{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.container .left-section .logo{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.container .left-section .logo img{
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.container .left-section .logo a{
+  font-weight: 800;
+  font-size: 20px;
+  color: #006ED3;
+}
+
+.menu-btn{
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: #D1E6F9;
+  border-radius: 6px;
+  cursor: pointer;
+  display: none;
+}
+
+.menu-btn i{
+  font-size: 18px;
+  color: #208BEE;
+}
+
+.container .left-section .sidebar{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.container .left-section .sidebar .item{
+  display: flex;
+  gap: 20px;
+  cursor: pointer;
+}
+
+.container .left-section .sidebar i{
+  color: #BDBDBD;
+  transition: all 0.3s ease;
+}
+
+.container .left-section .sidebar a{
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-size: 14px;
+  color: #BDBDBD;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.container .left-section .sidebar .item#active a,
+.container .left-section .sidebar .item#active i,
+.container .left-section .upgrade .link i{
+  color: #369FFF;
+}
+
+.container .left-section .sidebar .item a::after{
+  position: absolute;
+  content: "";
+  width: 0px;
+  height: 0px;
+  background-color: #369FFF;
+  right: -30px;
+  border-radius: 50%;
+  top: 0;
+  transform: translateY(116%);
+  transition: all 0.3s ease;
+}
+
+.container .left-section .sidebar .item#active a::after{
+  width: 8px;
+  height: 8px;
+}
+
+.container .left-section .pic  img{
+  width: 160px;
+}
+
+.container .left-section .upgrade{
+  background: #EBF6FF;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 24px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.container .left-section .upgrade .link{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container .left-section .upgrade .link a{
+  font-size: 12px;
+}
+
+/* main content */
+main{
+  border-right: 2px solid #F0F0F0;
+  border-left: 2px solid #F0F0F0;
+  padding: 40px 40px 0 40px;
+}
+
+main header{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+main header h5{
+  font-size: 18px;
+  color: #369FFF;
+  font-weight: 400;
+}
+
+main .separator{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+main .separator .info{
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+main .separator .info h3{
+  font-size: 30px;
+}
+
+main .separator .info a{
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+main .separator input{
+  border: none;
+  color: #369FFF;
+  font-weight: bold;
+  outline: none;
+  width: 100px;
+}
+
+/* back link */
+.back_link {
+  text-decoration: none;
+  color:#7a9bb9;
+  text-align: start;
+  font-size: small;
+  font-weight: 600;
+}
+
+/* logout-btn */
+.logout-btn {
+  color: #f44336;
+  padding: 15px;
+  border: none;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  background: none;
+  text-decoration: none;
+}
+
+/* Page container */
+.help-container {
+    width: 100%;
+    margin-top: 15px;
+}
+
+/* Page Title */
+.help-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+/* Description text */
+.help-desc {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 25px;
+}
+
+/* ---------------------------
+   SUPPORT ACTION BUTTONS
+   --------------------------- */
+
+.support-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.support-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    border: 1px solid #eee;
+    transition: 0.2s ease;
+}
+
+.support-btn i {
+    font-size: 1.5rem;
+    color: #007bff;
+}
+
+.support-btn:hover {
+    transform: translateY(-2px);
+    border-color: #007bff;
+}
+
+/* ---------------------------
+   FAQ / COMMON QUESTIONS
+   --------------------------- */
+
+.faq-box {
+    margin-top: 20px;
+}
+
+.faq-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+/* FAQ items */
+.faq-item {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e5e5e5;
+    overflow: hidden;
+    transition: 0.2s ease;
+}
+
+.faq-question {
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question i {
+    font-size: 1.3rem;
+    transition: 0.2s ease;
+}
+
+/* Hidden Answer */
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 15px;
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.4rem;
+    transition: max-height 0.3s ease;
+}
+
+/* Active FAQ */
+.faq-item.active .faq-answer {
+    max-height: 300px;
+    padding-bottom: 15px;
+}
+
+.faq-item.active .faq-question i {
+    transform: rotate(180deg);
+}
+
+/* ---------------------------
+   CONTACT SUPPORT BOX
+   --------------------------- */
+
+.contact-support {
+    margin-top: 30px;
+    background: #f8f9ff;
+    padding: 18px;
+    border-radius: 14px;
+    border-left: 5px solid #007bff;
+}
+
+.contact-support h3 {
+    font-size: 1.3rem;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+.contact-support p {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 12px;
+}
+
+.contact-support .email-link {
+    font-weight: 700;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.contact-support .email-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------
+      RESPONSIVE
+   --------------------------- */
+
+@media (max-width: 768px) {
+    .help-container {
+        padding: 18px;
+    }
+
+    .help-title {
+        font-size: 1.5rem;
+    }
+
+    .faq-question {
+        font-size: 0.95rem;
+    }
+}
+
+/* ====================== RESPONSIVE ADJUSTMENTS ======================*/
+@media (max-width: 600px) {
+  main {
+    margin-top: -5rem;
+  }
+
+  .nav .nav-container {
+    margin: 0;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .container {
+    grid-template-columns: 1fr 6fr 5fr;
+  }
+
+  .container .left-section,
+  .container main,
+  .container .right-section {
+    padding: 20px 20px 0 20px;
+  }
+
+  .container .left-section .logo a,
+  .container .left-section .sidebar a,
+  .container .left-section .pic img,
+  .container .left-section .upgrade {
+    display: none;
+  }
+
+  .container .left-section {
+    display: none !important;
+  }
+
+  .menu-btn {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  main {
+    margin-top: -5rem;
+  }
+
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .container .left-section {
+    position: fixed;
+    height: 60vh;
+    background-color: #fff;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    top: -60vh;
+  }
+
+  .container .left-section .logo {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .container .left-section .logo .menu-btn,
+  main header .menu-btn {
+    display: flex;
+  }
+
+  main h5 {
+    font-size: 16px;
+  }
+
+  main .separator .info {
+    gap: 15px;
+  }
+
+  main .separator .info h3,
+  .container .right-section .separator h4 {
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+    margin-top: 80px;
+  }
+
+  .left-section {
+    display: none !important;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .header {
+    display: none;
+  }
+
+  .div.top {
+    position: top;
+  }
+}

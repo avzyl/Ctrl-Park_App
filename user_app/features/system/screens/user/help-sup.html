@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help & Support | Ctrl+Park</title>
+
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
+    <link rel="stylesheet" href="../../../../user_assets/user_css/help-sup.css">
+    <link rel="stylesheet" href="../../../controllers/assets/css/styles.css">
+    
+    <!-- Icons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Prevention Script -->
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+            // Prevent any content from flashing
+            document.documentElement.style.display = "none";
+
+            // Redirect immediately
+            window.location.href = "/index.html";
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- ========== SIDEBAR ========== -->
+        <aside class="left-section">
+            <div class="logo">
+                <button class="menu-btn" id="menu-close">
+                    <i class='bx bx-log-out-circle'></i>
+                </button>
+                <img src="../../../../user_assets/user_img/logo-white.svg">
+                <a href="#">Ctrl+Park</a>
+            </div>
+
+            <div class="sidebar">
+                <div class="item">
+                    <i class='bx bx-home-alt-2'></i>
+                    <a href="../home/home.html">Home</a>
+                </div>
+                <div class="item">
+                    <i class='bx bx-grid-alt'></i>
+                    <a href="../parking/parking.html">Parking</a>
+                </div>
+                <div class="item" id="active">
+                    <i class='bx bx-user-circle'></i>
+                    <a href="../profile/profile.html">Profile</a>
+                </div>
+            </div>
+
+            <button id="info-btn" class="info-btn">
+                <i class='bx bx-info-circle'></i>
+            </button>
+        </aside>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <main>
+            <div class="separator">
+                <div class="info">
+                    <h3>Help & Support</h3>
+                </div>
+            </div>
+            <div class="back_links">
+                <a href="user.html"><p class="back_link">> Profile</p></a>
+            </div>
+
+            <div class="help-container">
+
+                <h2 class="help-title">How can we assist you?</h2>
+                <p class="help-desc">
+                    Find answers, contact support, or report issues regarding your Ctrl+Park account, parking data, or scanning system.
+                </p>
+
+                <!-- ========== SUPPORT ACTION BUTTONS ========== -->
+                <div class="support-actions">
+                    <div class="support-btn" onclick="emailSupport()">
+                        <i class='bx bx-envelope'></i>
+                        <span>Email Support</span>
+                    </div>
+
+                    <div class="support-btn" onclick="sendReport()">
+                        <i class='bx bx-error-circle'></i>
+                        <span>Submit a Bug Report</span>
+                    </div>
+
+                </div>
+
+                <!-- ========== FAQ ========== -->
+                <div class="faq-box">
+                    <h3 class="faq-title">Frequently Asked Questions</h3>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I update my profile information?</span>
+                            <i class='bx bx-chevron-down'></i>
+                        </div>
+                        <div class="faq-answer">
+                            You can update your details by navigating to <b>Profile → Edit Profile</b>. Make sure to save your changes.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Why is my plate not recognized?</span>
+                            <i class='bx bx-chevron-down'></i>
+                        </div>
+                        <div class="faq-answer">
+                            The system might not detect plates if they are blurry, too bright, or blocked. Try cleaning the plate and parking within the scan zone.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How do I report inaccurate detections?</span>
+                            <i class='bx bx-chevron-down'></i>
+                        </div>
+                        <div class="faq-answer">
+                            Use the “Submit a Report” button above, and attach details such as time, plate number, and issue description.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== CONTACT BOX ========== -->
+                <div class="contact-support">
+                    <h3>Need additional help?</h3>
+                    <p>You can reach our technical team anytime at:</p>
+                    <a href="mailto:ctrlpark.system@gmail.com" class="email-link">
+                        ctrlpark.system@gmail.com
+                    </a>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ========== BOTTOM NAVBAR ========== -->
+    <header class="header" id="header">
+        <nav class="nav">
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+
+                    <li class="nav__item">
+                        <a href="../home/home.html" class="nav__link">
+                            <i class='bx bx-home-alt nav__icon'></i>
+                            <span class="nav__name">Home</span>
+                        </a>
+                    </li>
+
+                    <li class="nav__item">
+                        <a href="../parking/parking.html" class="nav__link">
+                            <i class='bx bx-grid-alt nav__icon'></i>
+                            <span class="nav__name">Parking</span>
+                        </a>
+                    </li>
+
+                    <li class="nav__item">
+                        <a href="../profile/profile.html" class="nav__link active-link">
+                            <i class='bx bx-user-circle nav__icon'></i>
+                            <span class="nav__name">Profile</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Scripts -->
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+    <script src="../../../../user_assets/user_js/user_script.js"></script>
+    <script type="module" src="../../../authentication/user_log.js"></script>
+    <script type="module" src="../../../../user_assets/user_js/bug.js"></script>
+
+</body>
+</html>

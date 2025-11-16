@@ -212,17 +212,6 @@
             </div>
         </aside>
 
-        <!-- Modal structure -->
-        <div id="notifModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Notifications</h3>
-                <div id="notifList">
-                <p>No new notifications.</p>
-                </div>
-            </div>
-        </div>
-
     </div>
         
     <!--=============== BOTTOM NAVBAR ===============-->
@@ -294,6 +283,11 @@
         document.getElementById("mapButton").addEventListener("click", () => {
             window.location.href = "../parking/parking.html";
         });
+        });
+
+        // --- Button ---
+        document.getElementById("notifBtn").addEventListener("click", () => {
+            window.location.href = "../user/notifications.html"; 
         });
     </script>
 
