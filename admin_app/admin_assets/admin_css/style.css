@@ -787,6 +787,222 @@ main .recent-orders a{
     gap: 0.6rem;
 }
 
+.notification.done {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+/* Reminders Section */
+.reminders {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.reminders .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.reminders .header h2 {
+    font-size: 1.3rem;
+    color: #007bff;
+}
+
+.reminders .notification {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8f9ff;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    cursor: default;
+}
+
+.reminders .notification.deactive {
+    background: #e0e0e0;
+}
+
+.reminders .notification .icon span {
+    font-size: 28px;
+    color: #007bff;
+}
+
+.reminders .notification .content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.reminders .notification .content .info h3 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.reminders .notification .content .info small {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.reminders .notification .actions button {
+    border: none;
+    background: none;
+    font-size: 0.8rem;
+    color: #007bff;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: 0.2s ease;
+}
+
+.reminders .notification .actions button:hover {
+    text-decoration: underline;
+}
+
+/* Add Reminder Button */
+.notification.add-reminder {
+    justify-content: center;
+    background: #D1E6F9;
+    cursor: pointer;
+}
+
+.notification.add-reminder .add-btn-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-bottom: 12px;
+    color: #007bff;
+}
+
+.modal-content .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.reminder-form label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+}
+
+.reminder-form input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 6px;
+}
+
+.reminder-form .btn-submit {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: 0.2s ease;
+}
+
+.reminder-form .btn-submit:hover {
+    background: #0056b3;
+}
+
+.reminders .notification .actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.reminders .notification .actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.reminders .notification .actions button:hover span {
+    color: #007bff;
+}
+
+.reminders .notification.marked-done {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+/* Reminder Icons */
+.reminders .notification .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reminders .notification .actions span {
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    color: #007bff;
+}
+
+.reminders .notification .actions span:hover {
+    color: #0056b3;
+}
+
+/* Override delete icon color */
+.reminders .notification .actions .hide {
+    color: #f44336;
+}
+
+.reminders .notification .actions .hide:hover {
+    color: #c62828;
+}
+
+/* Deactivated reminder */
+.reminders .notification.done {
+    background: #d4edda;
+    color: #155724;
+    text-decoration: line-through;
+}
+
+
 /* report reply modal */
 .modal {
   display: none; /* hidden by default */

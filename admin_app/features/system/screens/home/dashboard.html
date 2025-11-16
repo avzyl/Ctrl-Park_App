@@ -236,62 +236,43 @@
                 </div>
             </div>
 
-            <!-- Reminders -->
+            <!-- Reminders Section -->
             <div class="reminders">
                 <div class="header">
                     <h2>Reminders</h2>
-                    <span class="material-icons-sharp">
-                        notifications_none
-                    </span>
+                    <span class="material-icons-sharp">notifications_none</span>
                 </div>
 
-                <div class="notification">
-                    <div class="icon">
-                        <span class="material-icons-sharp">
-                            volume_up
-                        </span>
-                    </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted">
-                                08:00 AM - 12:00 PM
-                            </small>
-                        </div>
-                        <span class="material-icons-sharp">
-                            more_vert
-                        </span>
-                    </div>
-                </div>
-
-                <div class="notification deactive">
-                    <div class="icon">
-                        <span class="material-icons-sharp">
-                            edit
-                        </span>
-                    </div>
-                    <div class="content">
-                        <div class="info">
-                            <h3>Workshop</h3>
-                            <small class="text_muted">
-                                08:00 AM - 12:00 PM
-                            </small>
-                        </div>
-                        <span class="material-icons-sharp">
-                            more_vert
-                        </span>
-                    </div>
+                <div id="remindersList" class="reminders-list">
+                    <!-- Reminders will be dynamically added here -->
                 </div>
 
                 <div class="notification add-reminder">
-                    <div>
-                        <span class="material-icons-sharp">
-                            add
-                        </span>
+                    <div class="add-btn-content">
+                        <span class="material-icons-sharp">add</span>
                         <h3>Add Reminder</h3>
                     </div>
                 </div>
+            </div>
 
+            <!-- Add/Edit Reminder Modal -->
+            <div id="addReminderModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="modalTitle">Add Reminder</h2>
+                    <form id="addReminderForm" class="reminder-form">
+                        <label for="reminderTitle">Title:</label>
+                        <input type="text" id="reminderTitle" placeholder="Reminder title" required>
+
+                        <label for="reminderDate">Date:</label>
+                        <input type="date" id="reminderDate" required>
+
+                        <label for="reminderTime">Time:</label>
+                        <input type="time" id="reminderTime" required>
+
+                        <button type="submit" class="btn-submit">Save</button>
+                    </form>
+                </div>
             </div>
 
         </div>
@@ -303,6 +284,7 @@
     <script src="../../../../admin_assets/admin_js/index.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/reminders.js"></script>
     <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
     <script>
         document.querySelector(".map2d").addEventListener("click", () => {
