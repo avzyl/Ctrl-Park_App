@@ -86,17 +86,12 @@ onSnapshot(slotsRef, (snapshot) => {
       try {
         const notifSnap = await getDoc(notifDocRef);
         const existingReadBy = notifSnap.exists() ? notifSnap.data().readBy || {} : {};
-        const prevVersion = notifSnap.exists() ? notifSnap.data().version || 0 : 0;
-
-        // Increment version only if status changes to Available
-        const newVersion = prevStatus !== status && status === "Available" ? prevVersion + 1 : prevVersion;
 
         await setDoc(
           notifDocRef,
           {
             slot: slotName,
             status: status,
-            version: newVersion,
             message: `${slotName} is now ${status.toUpperCase()}`,
             type: status === "Available" ? "available" : "info",
             timestamp: serverTimestamp(),
@@ -106,7 +101,7 @@ onSnapshot(slotsRef, (snapshot) => {
         );
 
         lastStatus[slotId] = status;
-        console.log(`💾 Notification updated for ${slotName}, version ${newVersion}`);
+        console.log(`💾 Notification updated for ${slotName}`);
       } catch (err) {
         console.error("❌ Error updating notification:", err);
       }
@@ -125,26 +120,35 @@ onSnapshot(notifQuery, (snapshot) => {
 
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
-    const version = data.version || 0;
-    const isRead = data.readBy?.[userKey] === version;
+    const isRead = data.readBy?.[userKey] ?? false;
 
     const div = document.createElement("div");
     div.className = `notification-card ${data.type} ${isRead ? "read" : "unread"}`;
+
+    const slotName = data.slot || "Unknown Slot";
+    const message = data.message || "";
+    const timestamp = data.timestamp?.toDate
+      ? data.timestamp.toDate().toLocaleString()
+      : new Date().toLocaleString();
 
     div.innerHTML = `
       <div class="notif-icon">
         <i class='bx ${data.type === "available" ? "bx-check-circle" : "bx-error"}'></i>
       </div>
       <div class="notif-content">
-        <p><b>${data.slot}</b>: ${data.message}</p>
-        <small>${data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : new Date().toLocaleString()}</small>
+        <p><b>${slotName}</b>: ${message}</p>
+        <small>${timestamp}</small>
       </div>
     `;
 
+    // Mark as read on click (per user)
     div.addEventListener("click", async () => {
-      if (!isRead) {
-        const notifDoc = doc(db, "notifications", docSnap.id);
-        await updateDoc(notifDoc, { [`readBy.${userKey}`]: version });
+      const notifDoc = doc(db, "notifications", docSnap.id);
+      const notifSnap = await getDoc(notifDoc);
+      const currentReadBy = notifSnap.data().readBy || {};
+
+      if (!currentReadBy[userKey]) {
+        await updateDoc(notifDoc, { [`readBy.${userKey}`]: true });
         div.classList.remove("unread");
         div.classList.add("read");
       }
