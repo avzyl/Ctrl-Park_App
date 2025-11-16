@@ -1,4 +1,4 @@
-// ===================== ADMIN HISTORY FETCH (Grouped by Date + Merged Events + User Match + Filter) =====================
+// ===================== ADMIN HISTORY FETCH (Merged with Slot History) =====================
 import { db } from "../../../main_assets/js/authentication/firebase.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -6,8 +6,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const historyContainer = document.getElementById("history-list");
   const filterSelect = document.getElementById("filterSelect");
 
-  let allData = {}; // Store all sessions grouped by date
-  let usersByPlate = {}; // Store users
+  let allData = {}; // Store sessions grouped by date
+  let usersByPlate = {}; // Registered users by plate
+  let slotHistoryByPlate = {}; // Slot history by plate
 
   async function loadAllHistory() {
     try {
@@ -18,24 +19,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       `;
 
-      // --- 1️⃣ Fetch all collections (logs + users) ---
-      const [gateSnap, roundSnap, parkSnap, userSnap] = await Promise.all([
+      // --- Fetch all collections ---
+      const [gateSnap, roundSnap, parkedSnap, userSnap, slotHistorySnap] = await Promise.all([
         getDocs(collection(db, "gate_logs")),
         getDocs(collection(db, "roundabout")),
         getDocs(collection(db, "parked")),
         getDocs(collection(db, "users")),
+        getDocs(collection(db, "slot_history")),
       ]);
 
-      // --- 2️⃣ Build user lookup by plate number ---
+      // --- Build user lookup by plate number ---
       usersByPlate = {};
       userSnap.forEach((doc) => {
         const user = doc.data();
-        if (user.plateNumber) {
-          usersByPlate[user.plateNumber.toUpperCase()] = user;
-        }
+        if (user.plateNumber) usersByPlate[user.plateNumber.toUpperCase()] = user;
       });
 
-      // --- 3️⃣ Collect all events per plate ---
+      // --- Build slot history lookup by plate number ---
+      slotHistoryByPlate = {};
+      slotHistorySnap.forEach((doc) => {
+        const sh = doc.data();
+        const plate = sh.user ? JSON.parse(sh.user).plateNumber.toUpperCase() : null;
+        if (!plate) return;
+        if (!slotHistoryByPlate[plate]) slotHistoryByPlate[plate] = [];
+        slotHistoryByPlate[plate].push({
+          slot_number: sh.slot_number,
+          parked_time: sh.parked_time?.toDate ? sh.parked_time.toDate() : new Date(sh.parked_time),
+          vacate_time: sh.vacate_time?.toDate ? sh.vacate_time.toDate() : new Date(sh.vacate_time),
+          user: JSON.parse(sh.user)
+        });
+      });
+
+      // --- Collect all events per plate ---
       const allEvents = {};
 
       const addEvent = (plate, event) => {
@@ -55,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           entry_time: ts,
           exit_time: null,
           duration_min: null,
-          location: "Gate 3",
+          location: "Gate 3"
         });
       });
 
@@ -68,28 +83,41 @@ document.addEventListener("DOMContentLoaded", async () => {
           entry_time: d.entry_time?.toDate ? d.entry_time.toDate() : new Date(d.entry_time),
           exit_time: d.exit_time?.toDate ? d.exit_time.toDate() : new Date(d.exit_time),
           duration_min: d.duration_min,
-          location: "Roundabout",
+          location: "Roundabout"
         });
       });
 
       // Parked events
-      parkSnap.forEach((doc) => {
+      parkedSnap.forEach((doc) => {
         const d = doc.data();
+        const entryTime = d.entry_time?.toDate ? d.entry_time.toDate() : new Date(d.entry_time);
+        const exitTime = d.exit_time?.toDate ? d.exit_time.toDate() : new Date(d.exit_time);
+
+        // --- Try to match slot history ---
+        let slotData = null;
+        const plateUpper = d.plate_number.toUpperCase();
+        if (slotHistoryByPlate[plateUpper]) {
+          slotData = slotHistoryByPlate[plateUpper].find(sh =>
+            entryTime >= sh.parked_time && exitTime <= sh.vacate_time
+          );
+        }
+
         addEvent(d.plate_number, {
           type: "parked",
           eventType: "Parked",
-          entry_time: d.entry_time?.toDate ? d.entry_time.toDate() : new Date(d.entry_time),
-          exit_time: d.exit_time?.toDate ? d.exit_time.toDate() : new Date(d.exit_time),
+          entry_time: entryTime,
+          exit_time: exitTime,
           duration_min: d.duration_min,
           location: "Parking Area",
-          slot: d.slot || "N/A",
+          slot: slotData ? slotData.slot_number : d.slot || "N/A",
+          user: slotData ? slotData.user : null
         });
       });
 
-      // --- 4️⃣ Merge sessions per plate ---
+      // --- Merge sessions per plate (same logic as before) ---
       const mergeSessions = (events) => {
-        const gates = events.filter((e) => e.type === "gate").sort((a, b) => a.entry_time - b.entry_time);
-        const others = events.filter((e) => e.type !== "gate").sort((a, b) => a.entry_time - b.entry_time);
+        const gates = events.filter(e => e.type === "gate").sort((a, b) => a.entry_time - b.entry_time);
+        const others = events.filter(e => e.type !== "gate").sort((a, b) => a.entry_time - b.entry_time);
         const merged = [];
         const usedOther = new Set();
         let i = 0;
@@ -105,6 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               location: gate.location,
               slot: null,
               duration_min: null,
+              user: null
             };
 
             others.forEach((e, j) => {
@@ -116,6 +145,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 session.events.push(e.eventType);
                 if (e.slot) session.slot = e.slot;
                 if (e.duration_min) session.duration_min = e.duration_min;
+                if (e.user) session.user = e.user;
                 usedOther.add(j);
               }
             });
@@ -134,30 +164,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         return merged.sort((a, b) => b.entry_time - a.entry_time);
       };
 
-      // --- 5️⃣ Group merged sessions by date ---
+      // --- Group merged sessions by date ---
       allData = {};
       Object.keys(allEvents).forEach((plate) => {
         const sessions = mergeSessions(allEvents[plate]);
-
         sessions.forEach((session) => {
-          const dateKey = session.entry_time.toLocaleDateString("en-PH", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+          const dateKey = session.entry_time.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
           if (!allData[dateKey]) allData[dateKey] = [];
           allData[dateKey].push({ plate, ...session });
         });
       });
 
-      renderHistory("all"); // initial view
+      renderHistory("all"); // initial render
     } catch (err) {
       console.error("Error loading all history:", err);
       historyContainer.innerHTML = `<p style="color:red;">Failed to load history: ${err.message}</p>`;
     }
   }
 
-  // --- 🔍 Render Function (with filter support) ---
+  // --- Render function with filter support ---
   function renderHistory(filterType) {
     const sortedDates = Object.keys(allData).sort((a, b) => new Date(b) - new Date(a));
     historyContainer.innerHTML = "";
@@ -170,20 +195,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     sortedDates.forEach((dateKey) => {
       let daySessions = allData[dateKey];
 
-      // Apply filter
-      if (filterType === "registered") {
-        daySessions = daySessions.filter((i) => !!usersByPlate[i.plate]);
-      } else if (filterType === "unregistered") {
-        daySessions = daySessions.filter((i) => !usersByPlate[i.plate]);
-      }
+      if (filterType === "registered") daySessions = daySessions.filter(i => !!i.user || !!usersByPlate[i.plate]);
+      if (filterType === "unregistered") daySessions = daySessions.filter(i => !i.user && !usersByPlate[i.plate]);
 
-      // Skip empty results for this date
       if (daySessions.length === 0) return;
 
-      // Sort (unregistered first, then latest)
       daySessions.sort((a, b) => {
-        const aReg = !!usersByPlate[a.plate];
-        const bReg = !!usersByPlate[b.plate];
+        const aReg = !!a.user || !!usersByPlate[a.plate];
+        const bReg = !!b.user || !!usersByPlate[b.plate];
         if (aReg !== bReg) return aReg ? 1 : -1;
         return b.entry_time - a.entry_time;
       });
@@ -193,32 +212,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       section.innerHTML = `<h2 class="date-title">${dateKey}</h2>`;
 
       daySessions.forEach((item) => {
-        const entryTimeStr = item.entry_time?.toLocaleTimeString("en-PH", {
-          hour: "2-digit",
-          minute: "2-digit",
-        }) || "—";
-        const exitTimeStr = item.exit_time
-          ? item.exit_time.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })
-          : null;
-        const durationStr = item.duration_min
-          ? (item.duration_min >= 60
-              ? `${(item.duration_min / 60).toFixed(1)} hr`
-              : `${Math.round(item.duration_min)} min`)
-          : "";
+        const entryTimeStr = item.entry_time?.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" }) || "—";
+        const exitTimeStr = item.exit_time ? item.exit_time.toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" }) : null;
+        const durationStr = item.duration_min ? (item.duration_min >= 60 ? `${(item.duration_min/60).toFixed(1)} hr` : `${Math.round(item.duration_min)} min`) : "";
 
-        const userMatch = usersByPlate[item.plate];
-        const isRegistered = !!userMatch;
-        const userName = isRegistered
-          ? `${userMatch.name || userMatch.fullName || "Registered User"}`
-          : "Unregistered Vehicle";
-        const plateHTML = isRegistered
-          ? `<p><strong>Plate Number:</strong> ${item.plate}</p>`
-          : `<p><strong>Plate Number:</strong> <span style="color:red;">${item.plate}</span></p>`;
+        const userInfo = item.user || usersByPlate[item.plate];
+        const isRegistered = !!userInfo;
+        const userName = isRegistered ? (userInfo.name || userInfo.fullName || "Registered User") : "Unregistered Vehicle";
+        const plateHTML = isRegistered ? `<p><strong>Plate Number:</strong> ${item.plate}</p>` : `<p><strong>Plate Number:</strong> <span style="color:red;">${item.plate}</span></p>`;
 
         const div = document.createElement("div");
         div.className = "user";
         div.innerHTML = `
-          <img src="${userMatch?.photoURL || "../../../../admin_assets/admin_img/default-avatar.svg"}">
+          <img src="${userInfo?.photoURL || "../../../../admin_assets/admin_img/default-avatar.svg"}">
           <div>
             <h2>${userName}</h2>
             ${plateHTML}
@@ -236,10 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // --- 🎚 Filter Listener ---
-  filterSelect.addEventListener("change", (e) => {
-    renderHistory(e.target.value);
-  });
+  filterSelect.addEventListener("change", (e) => renderHistory(e.target.value));
 
   await loadAllHistory();
 });

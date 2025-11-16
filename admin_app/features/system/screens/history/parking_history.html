@@ -104,8 +104,8 @@
             <h1>History</h1>
             <!-- Tabs Section -->
             <div class="tabs-container">
-                <button class="tab-btn active" disabled>Recent Activity</button>
-                <button class="tab-btn" onclick="window.location.href='parking_history.html'">Parking Slot History</button>
+                <button class="tab-btn" onclick="window.location.href='history.html'">Recent Activity</button>
+                <button class="tab-btn active">Parking Slot History</button>
             </div>
             <!-- History Section -->
             <div class="all-history">
@@ -119,14 +119,14 @@
                                 <option value="unregistered">Unregistered Only</option>
                             </select>
                         </div>
-                    </div>
+                    </diV>
                 </div>
 
-                <div class="user-list" id="history-list">
-                    <p>Loading all history...</p>
+                <div class="history-cards" id="history-list">
+                    <p>Loading parking history...</p>
                 </div>
-
             </div>
+
         </main>
         <!-- End of Main Content -->
 
@@ -247,7 +247,7 @@
     <!-- Scripts -->
     <script src="../../../../admin_assets/admin_js/index.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
-    <script type="module" src="../../../../admin_assets/admin_js/history.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/slot_history.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/reminders.js"></script>
 </body>
