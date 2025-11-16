@@ -74,25 +74,25 @@
                     </span>
                     <h3>History</h3>
                 </a>
-                <a href="#">
+                <!-- <a href="#">
                     <span class="material-icons-sharp">
                         mail_outline
                     </span>
                     <h3>Tickets</h3>
                     <span class="message-count">27</span>
-                </a>
+                </a> -->
                 <a href="../reports/reports.html">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
                     </span>
                     <h3>Reports</h3>
                 </a>
-                <a href="../settings/settings.html">
+                <!-- <a href="../settings/settings.html">
                     <span class="material-icons-sharp">
                         settings
                     </span>
                     <h3>Settings</h3>
-                </a>
+                </a> -->
                 <a href="#">
                     <span class="material-icons-sharp">
                         logout
@@ -334,6 +334,10 @@
     <script type="module" src="../../../../admin_assets/admin_js/users.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/reminders.js"></script>
     <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
-
+    <script>
+        document.querySelector(".map2d").addEventListener("click", () => {
+            window.location.href = "parking.html";
+        });
+    </script>
 </body>
 </html>

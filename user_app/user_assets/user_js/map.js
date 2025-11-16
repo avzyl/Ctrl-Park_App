@@ -33,12 +33,13 @@ const locations = {
   "Node 6": [14.869225, 120.801708],
   "Node 7": [14.869309, 120.801519],
   "Node 8": [14.869472, 120.801363],
+  "Node 9": [14.869443, 120.801404],
 
   // ======== Parking Slots ======== //
   "Parking 1": [14.869456, 120.801326],
   "Parking 2": [14.869445, 120.801343],
-  "Parking 3": [14.869266, 120.801608],
-  "Parking 4": [14.869280, 120.801485],
+  "Parking 3": [14.869200, 120.801560],
+  "Parking 4": [14.869219, 120.801540],
   "Parking 5": [14.869242, 120.801534],
   "Parking 6": [14.869257, 120.801519],
   "Parking 7": [14.869272, 120.801504],
@@ -52,7 +53,7 @@ const locations = {
   "Parking 15": [14.869400, 120.801389],
   "Parking 16": [14.869416, 120.801373],
   "Parking 17": [14.869431, 120.801357],
-  "Parking 18": [14.869448, 120.801350],
+  "Parking 18": [14.869184, 120.801578],
 
   // ======== Row 2 ======== //
   "Parking 19": [14.869205, 120.801672],
@@ -117,6 +118,21 @@ const routes = {
     { from: "Node 1", to: "Node 2", instruction: "Go Straight" },
     { from: "Node 2", to: "Node 7", instruction: "Turn Right" },
     { from: "Node 7", to: "Parking 4", instruction: "Arrive at Parking 4" }
+  ],
+  "Parking 5": [
+    { from: "Gate", to: "Node 1", instruction: "Turn Right" },
+    { from: "Node 1", to: "Node 3", instruction: "Go Straight" },
+    { from: "Node 3", to: "Node 7", instruction: "Turn Right" },
+    { from: "Node 7", to: "Parking 4", instruction: "Arrive at Parking 5" }
+  ],
+
+
+
+  "Parking 17": [
+    { from: "Gate", to: "Node 1", instruction: "Turn Right" },
+    { from: "Node 1", to: "Node 2", instruction: "Go Straight" },
+    { from: "Node 2", to: "Node 8", instruction: "Turn Right" },
+    { from: "Node 8", to: "Parking 17", instruction: "Arrive at Parking 17" }
   ]
 };
 
