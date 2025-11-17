@@ -1,4 +1,4 @@
-import { db } from "../../../../../main_assets/js/authentication/firebase.js";
+import { db } from "../../../main_assets/js/authentication/firebase.js";
 import { collection, addDoc, serverTimestamp, getDocs, updateDoc, doc } 
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
