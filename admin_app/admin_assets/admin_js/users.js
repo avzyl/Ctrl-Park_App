@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (user.role === "driver") {
           row.innerHTML = `
             <td>${user.fullName}</td>
-            <td>${user.carPassNumber || "N/A"}</td>
+            <td>${user.idNumber || "N/A"}</td>
             <td>${user.email}</td>
             <td>${user.role}</td>
             <td><button class="edit-btn">Edit</button></td>
