@@ -371,7 +371,7 @@ if (resetLink) {
       });
 
       // 4️⃣ Build the actual reset link (update with your real URL)
-      const resetLink = `https://avzyl.github.io/Ctrl-Park_App/reset_password.html?token=${reset_token}&id=${user_id}`;
+      const resetLink = `https://avzyl.github.io/Ctrl-Park_App/reset_password.html?token=${token}&id=${userId}`;
 
       // 5️⃣ Send email using EmailJS
       emailjs.init("SKq6rRh-aPDV4uugA");  // 🔑 Your EmailJS public key
