@@ -19,9 +19,6 @@ function hashPassword(password) {
   return CryptoJS.SHA256(password).toString();
 }
 
-// Allowed CEU domain (for future use)
-const allowedDomain = "@mls.ceu.edu.ph";
-
 // ==================================================
 // =============== GENERAL SIGN UP ==================
 // ==================================================
@@ -73,6 +70,7 @@ if (signupForm) {
     }
 
     try {
+      // Check if user exists
       const userRef = doc(db, "users", idNumber);
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
@@ -82,6 +80,7 @@ if (signupForm) {
         return;
       }
 
+      // Prepare user data
       const userData = {
         fullName,
         email,
@@ -93,17 +92,39 @@ if (signupForm) {
         createdAt: serverTimestamp(),
       };
 
+      // Save user in Firestore
       await setDoc(userRef, userData);
       localStorage.setItem("currentUser", JSON.stringify(userData));
 
+      // ================= SEND WELCOME EMAIL =================
+      emailjs.init("SKq6rRh-aPDV4uugA");
+
+      const emailParams = {
+        to_name: fullName,
+        to_email: email,
+        website_link: "https://bsitport2026.com/CtrlPark",
+      };
+
+      try {
+        const response = await emailjs.send(
+          "service_nzwwgxd",
+          "template_i6dmjx6",
+          emailParams
+        );
+        console.log("Welcome email sent!", response);
+      } catch (err) {
+        console.error("EmailJS error:", err);
+      }
+
+      // Success alert
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
         if (role === "admin") {
-          window.location.href =
-            "users.html";
+          window.location.href = "users.html";
         } else {
           window.location.href = "user_app/features/system/screens/home/home.html";
         }
       });
+
     } catch (error) {
       console.error("Signup error:", error);
       Swal.fire("Error", error.message, "error");
