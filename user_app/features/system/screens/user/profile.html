@@ -19,7 +19,10 @@
     
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
+    <!-- CryptoJS (for password hashing) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
     <!-- Prevetion Script -->
     <script>
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -165,6 +168,11 @@
                         <p>Joined Date</p>
                         <h4 id="user-joinedDate">-</h4>
                     </div>
+                    <div class="deets">
+                        <p>Password</p>
+                        <button id="change-password-btn" class="edit-btn" style="padding: 6px 12px;">Change Password</button>
+                    </div>
+
                 </div>
 
                 <!-- Action buttons -->
@@ -210,10 +218,107 @@
         </nav>
     </header>
 
+    <!-- Change Password Modal -->
+    <div id="passwordModal" style="
+        display:none; 
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        justify-content: center; align-items: center;
+        ">
+        <div style="
+            background:white; padding:20px; width:90%; max-width:350px;
+            border-radius:8px; font-family:system-ui;
+            ">
+            <h3 style="margin-bottom:10px;">Change Password</h3>
+
+            <label>Current Password</label>
+            <input type="password" id="currentPass" style="width:100%; padding:8px; margin-bottom:10px;">
+
+            <label>New Password</label>
+            <input type="password" id="newPass" style="width:100%; padding:8px; margin-bottom:10px;">
+
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPass" style="width:100%; padding:8px; margin-bottom:15px;">
+
+            <button id="savePassBtn" style="
+                width:100%; padding:10px; border:none; border-radius:5px;
+                background:#496184; color:white; margin-bottom:10px;
+            ">Save Password</button>
+
+            <button id="closePassBtn" style="
+                width:100%; padding:10px; border:none; border-radius:5px;
+                background:#aaa; color:white;
+            ">Cancel</button>
+        </div>
+    </div>
+
+
     <!-- Scripts -->
     <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
     <script src="../../../../user_assets/user_js/user_script.js"></script>
     <script type="module" src="../../../authentication/user_log.js"></script>
+    <script type="module">
+        import { db } from "../../../../../main_assets/js/authentication/firebase.js";
+        import {
+            doc, getDoc, updateDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // ========== OPEN MODAL ==========
+        document.getElementById("change-password-btn").addEventListener("click", () => {
+            document.getElementById("passwordModal").style.display = "flex";
+        });
+
+        // ========== CLOSE MODAL ==========
+        document.getElementById("closePassBtn").addEventListener("click", () => {
+            document.getElementById("passwordModal").style.display = "none";
+        });
+
+        // ========== SAVE PASSWORD ==========
+        document.getElementById("savePassBtn").addEventListener("click", async () => {
+            const currentPass = document.getElementById("currentPass").value;
+            const newPass = document.getElementById("newPass").value;
+            const confirmPass = document.getElementById("confirmPass").value;
+
+            if (!currentPass || !newPass || !confirmPass) {
+                Swal.fire("Error", "Fill in all fields.", "error");
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                Swal.fire("Error", "New passwords do not match.", "error");
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            const userRef = doc(db, "users", user.idNumber);
+            const userSnap = await getDoc(userRef);
+
+            if (!userSnap.exists()) {
+                Swal.fire("Error", "User not found.", "error");
+                return;
+            }
+
+            const userData = userSnap.data();
+            const currentHashed = CryptoJS.SHA256(currentPass).toString();
+
+            if (currentHashed !== userData.password) {
+                Swal.fire("Error", "Current password is incorrect.", "error");
+                return;
+            }
+
+            const newHashed = CryptoJS.SHA256(newPass).toString();
+            await updateDoc(userRef, { password: newHashed });
+
+            Swal.fire("Success", "Password updated successfully!", "success");
+            document.getElementById("passwordModal").style.display = "none";
+
+            document.getElementById("currentPass").value = "";
+            document.getElementById("newPass").value = "";
+            document.getElementById("confirmPass").value = "";
+        });
+        </script>
+
 </body>
 
 </html>
