@@ -1,12 +1,8 @@
 // main_assets/js/authentication/reset_password.js
 import { db } from "./firebase.js";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ============= URL PARAMS =============
+// Get URL params
 const params = new URLSearchParams(window.location.search);
 const token = params.get("token");
 const userId = params.get("id");
@@ -17,7 +13,7 @@ if (!token || !userId) {
   });
 }
 
-// ============= FORM HANDLER =============
+// Form submit
 const form = document.getElementById("reset-form");
 
 form.addEventListener("submit", async (e) => {
@@ -43,21 +39,21 @@ form.addEventListener("submit", async (e) => {
 
     const userData = userSnap.data();
 
-    // Validate token and expiry
-    if (userData.resetToken !== token) {
-      Swal.fire("Error", "Invalid reset token.", "error");
+    // Validate token
+    if (!userData.resetToken || userData.resetToken !== token) {
+      Swal.fire("Error", "Invalid or expired reset token.", "error");
       return;
     }
 
-    if (Date.now() > userData.resetExpires) {
+    if (!userData.resetExpires || Date.now() > userData.resetExpires) {
       Swal.fire("Error", "Reset link has expired.", "error");
       return;
     }
 
-    // Hash new password using SHA256
+    // Hash password
     const hashedPassword = CryptoJS.SHA256(newPass).toString();
 
-    // Update Firestore
+    // Update Firestore & remove token
     await updateDoc(userRef, {
       password: hashedPassword,
       resetToken: null,
@@ -67,6 +63,7 @@ form.addEventListener("submit", async (e) => {
     Swal.fire("Success", "Password reset successful! You can now sign in.", "success").then(() => {
       window.location.href = "index.html";
     });
+
   } catch (err) {
     console.error("Reset password error:", err);
     Swal.fire("Error", "Something went wrong.", "error");

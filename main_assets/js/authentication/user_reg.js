@@ -329,10 +329,10 @@ if (googleLoginBtn) {
 
 
 // ================== FORGOT PASSWORD ===============
-const resetLink = document.getElementById("reset");
+const resetLinkBtn = document.getElementById("reset");
 
-if (resetLink) {
-  resetLink.addEventListener("click", async (e) => {
+if (resetLinkBtn) {
+  resetLinkBtn.addEventListener("click", async (e) => {
     e.preventDefault();
 
     const { value: email } = await Swal.fire({
@@ -347,7 +347,7 @@ if (resetLink) {
     if (!email) return;
 
     try {
-      // 1️⃣ Search user by email in Firestore
+      // 1️⃣ Find user by email
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
@@ -360,34 +360,33 @@ if (resetLink) {
       const userDoc = querySnapshot.docs[0];
       const userId = userDoc.id;
 
-      // 2️⃣ Generate reset token and expiry (15 minutes)
+      // 2️⃣ Generate token & expiry (15 minutes)
       const token = Math.random().toString(36).substring(2, 15);
-      const expiry = Date.now() + 1000 * 60 * 15; // 15 minutes
+      const expiry = Date.now() + 1000 * 60 * 15; // 15 mins
 
-      // 3️⃣ Save the reset token and expiry to Firestore
+      // 3️⃣ Save to Firestore
       await updateDoc(userDoc.ref, {
         resetToken: token,
         resetExpires: expiry,
       });
 
-      // 4️⃣ Build the actual reset link (update with your real URL)
+      // 4️⃣ Build reset link
       const resetLink = `https://avzyl.github.io/Ctrl-Park_App/reset_password.html?token=${token}&id=${userId}`;
 
-      // 5️⃣ Send email using EmailJS
-      emailjs.init("SKq6rRh-aPDV4uugA");  // 🔑 Your EmailJS public key
-
+      // 5️⃣ Send email via EmailJS
+      emailjs.init("SKq6rRh-aPDV4uugA"); // Your public key
       const emailParams = {
-        to_email: email,               // Recipient email (provided by user)
-        reset_link: resetLink,         // Actual reset link
+        to_email: email,
+        to_name: userDoc.data().fullName || "User",
+        reset_link: resetLink,
       };
 
-      // 6️⃣ Send email
       const response = await emailjs.send("service_nzwwgxd", "template_7r1j3kp", emailParams);
 
       if (response.status === 200) {
         Swal.fire(
           "Email Sent!",
-          "Please check your Gmail for a password reset link. (Valid for 15 minutes)",
+          "Please check your Gmail for a password reset link (valid for 15 minutes).",
           "success"
         );
       } else {
