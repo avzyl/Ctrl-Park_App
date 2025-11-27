@@ -10,7 +10,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ================== HELPERS ==================
@@ -434,6 +435,35 @@ if (logoutBtn) {
     });
   });
 }
+
+// ========================= SLOTS ======================= //
+document.addEventListener("DOMContentLoaded", () => {
+  const parkingCountEl = document.getElementById("parking-count");
+  const slotsRef = collection(db, "slots");
+
+  onSnapshot(slotsRef, (snapshot) => {
+      let totalSlots = 0;
+      let availableSlots = 0;
+
+      snapshot.forEach(doc => {
+          const data = doc.data();
+          totalSlots++;
+
+          // Count as available if it's NOT occupied
+          if (data.status !== "Occupied") {
+              availableSlots++;
+          }
+      });
+
+      const occupiedSlots = totalSlots - availableSlots;
+
+      parkingCountEl.innerHTML = `
+          Available: <span style="color: green;">${availableSlots}</span> 
+          — Occupied: ${occupiedSlots}
+      `;
+  });
+});
+
 
 // ================== INFO MODAL ==================
 const infoBtn = document.getElementById("info-btn");
