@@ -312,8 +312,12 @@ form.sign-in-form {
 @media (max-width: 870px) {
   .container {
     min-height: 800px;
-    height: 100vh;
+    height: 120vh;
   }
+  .sign-in-form {
+    margin-top: -25vh;
+  }
+
   .signin-signup {
     width: 100%;
     top: 95%;
@@ -413,6 +417,14 @@ form.sign-in-form {
 }
 
 @media (max-width: 570px) {
+  .container {
+    min-height: 800px;
+    height: 120vh;
+  }
+  .sign-in-form {
+    margin-top: -25vh;
+  }
+  
   form {
     padding: 0 1.5rem;
   }
