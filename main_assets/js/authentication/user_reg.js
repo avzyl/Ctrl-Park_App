@@ -43,6 +43,15 @@ if (signupForm) {
     const studentNumber = signupForm["studentNumber"]?.value.trim() || "";
     const termsChecked = signupForm["terms"].checked;
 
+    // Check if the email domain is valid (only @mls.ceu.edu.ph allowed)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@mls\.ceu\.edu\.ph$/;
+    if (!emailRegex.test(email)) {
+      Swal.fire("Error", "Please use an email address with the domain @mls.ceu.edu.ph", "error");
+      signupBtn.disabled = false;
+      signupBtn.value = originalText;
+      return;
+    }
+
     if (!termsChecked) {
       Swal.fire("Error", "You must agree to the terms first.", "error");
       signupBtn.disabled = false;
@@ -153,6 +162,15 @@ if (adminForm) {
     const email = adminForm["email"].value.trim();
     const password = adminForm["password"].value.trim();
     const termsChecked = adminForm["terms"].checked;
+
+    // Check if the email domain is valid (only @mls.ceu.edu.ph allowed)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@mls\.ceu\.edu\.ph$/;
+    if (!emailRegex.test(email)) {
+      Swal.fire("Error", "Please use an email address with the domain @mls.ceu.edu.ph", "error");
+      btn.disabled = false;
+      btn.value = originalText;
+      return;
+    }
 
     if (!termsChecked) {
       Swal.fire("Error", "You must agree to the terms first.", "error");
