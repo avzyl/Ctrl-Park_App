@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // FETCH USERS
+  // ======================= FETCH USERS WITH STATUS ======================= //
   async function fetchUsers() {
     if (!driversTableBody || !passengersTableBody) return;
 
@@ -61,30 +62,35 @@ document.addEventListener("DOMContentLoaded", () => {
         const row = document.createElement("tr");
 
         const actionButtons = `
-            <button class="action-btn delete" data-id="${docSnap.id}" data-type="users">Delete</button>
-            <button class="action-btn deactivate" data-id="${docSnap.id}" data-type="users">Deactivate</button>
-            <button class="action-btn activate" data-id="${docSnap.id}" data-type="users">Activate</button>
-        `;
+        <button class="action-btn delete" data-id="${docSnap.id}" data-type="users">Delete</button>
+        <button class="action-btn deactivate" data-id="${docSnap.id}" data-type="users">Deactivate</button>
+        <button class="action-btn activate" data-id="${docSnap.id}" data-type="users">Activate</button>
+      `;
+
+        // Check if the user is inactive and add a class
+        if (user.status === "inactive") {
+          row.classList.add("inactive"); // This adds the 'inactive' class to the row
+        }
 
         if (user.role === "driver") {
           row.innerHTML = `
-            <td>${user.fullName}</td>
-            <td>${user.idNumber || "N/A"}</td>
-            <td>${user.email}</td>
-            <td>${user.role}</td>
-            <td>${actionButtons}</td>
-          `;
+          <td>${user.fullName}</td>
+          <td>${user.idNumber || "N/A"}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>${actionButtons}</td>
+        `;
           driversTableBody.appendChild(row);
         }
 
         else if (user.role === "passenger") {
           row.innerHTML = `
-            <td>${user.fullName}</td>
-            <td>${user.idNumber || "N/A"}</td>
-            <td>${user.email}</td>
-            <td>${user.role}</td>
-            <td>${actionButtons}</td>
-          `;
+          <td>${user.fullName}</td>
+          <td>${user.idNumber || "N/A"}</td>
+          <td>${user.email}</td>
+          <td>${user.role}</td>
+          <td>${actionButtons}</td>
+        `;
           passengersTableBody.appendChild(row);
         }
       });
@@ -93,6 +99,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (err) {
       console.log("Error loading users:", err);
+    }
+  }
+
+  // ======================= UPDATE STATUS FUNCTION ======================= //
+  async function updateStatus(docId, collectionName, status) {
+    try {
+      await updateDoc(doc(db, collectionName, docId), {
+        status: status
+      });
+
+      Swal.fire("Updated!", `User is now ${status}.`, "success");
+
+      fetchAdmins();
+      fetchUsers();
+
+    } catch (err) {
+      console.error("Status update error:", err);
     }
   }
 
