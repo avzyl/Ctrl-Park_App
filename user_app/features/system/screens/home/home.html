@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
@@ -11,14 +12,14 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../../../../user_assets/user_css/style.css">
     <link rel="stylesheet" href="../../../controllers/assets/css/styles.css"> <!-- for bottom navbar -->
- 
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Flatpickr CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
+
     <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
@@ -39,9 +40,10 @@
         }
     </script>
 </head>
+
 <body>
-      <div class="container">
-    <!--=============== LEFT SIDE ===============-->
+    <div class="container">
+        <!--=============== LEFT SIDE ===============-->
         <aside class="left-section">
             <div class="logo">
                 <button class="menu-btn" id="menu-close">
@@ -103,12 +105,8 @@
                         </div>
 
                         <!-- Clickable image opens modal -->
-                        <img
-                            src="https://stream.bsitport2026.com/parking/video_feed"
-                            alt="Live Stream"
-                            id="liveStream"
-                            class="clickable"
-                        >
+                        <img src="https://stream.bsitport2026.com/parking/video_feed" alt="Live Stream" id="liveStream"
+                            class="clickable">
                     </div>
                 </div>
 
@@ -140,7 +138,7 @@
                 </div>
                 <input type="date" id="history-calendar">
             </div>
-            
+
             <div class="weekly">
                 <div class="recent-activity"></div>
             </div>
@@ -157,12 +155,13 @@
                 <div class="profile">
                     <div class="left">
                         <!-- Profile Picture -->
-                        <img id="user-photo" src="../../../../user_assets/user_img/default-avatar.svg" alt="User Photo" class="avatar">
+                        <img id="user-photo" src="../../../../user_assets/user_img/default-avatar.svg" alt="User Photo"
+                            class="avatar">
                         <div class="user">
-                             <!-- Name -->
-                             <h5 id="user-name">Guest</h5>
-     
-                             <!-- Role -->                      
+                            <!-- Name -->
+                            <h5 id="user-name">Guest</h5>
+
+                            <!-- Role -->
                             <a id="user-plan">Role</a>
                         </div>
 
@@ -178,32 +177,32 @@
             <div class="stats">
                 <div class="item">
                     <div class="top">
-                    <p>Number of</p>
-                    <p>Entries</p>
+                        <p>Number of</p>
+                        <p>Entries</p>
                     </div>
                     <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="entriesCount">0</h3>
+                        <div class="line"></div>
+                        <h3 id="entriesCount">0</h3>
                     </div>
                 </div>
                 <div class="item">
                     <div class="top">
-                    <p>Number of</p>
-                    <p>Exits</p>
+                        <p>Number of</p>
+                        <p>Exits</p>
                     </div>
                     <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="exitsCount">0</h3>
+                        <div class="line"></div>
+                        <h3 id="exitsCount">0</h3>
                     </div>
                 </div>
                 <div class="item">
                     <div class="top">
-                    <p>Total Time</p>
-                    <p>Parked</p>
+                        <p>Total Time</p>
+                        <p>Parked</p>
                     </div>
                     <div class="bottom">
-                    <div class="line"></div>
-                    <h3 id="totalTime">0</h3>
+                        <div class="line"></div>
+                        <h3 id="totalTime">0</h3>
                     </div>
                 </div>
                 <!-- <div class="item">
@@ -219,33 +218,33 @@
         </aside>
 
     </div>
-        
+
     <!--=============== BOTTOM NAVBAR ===============-->
     <header class="header" id="header">
         <nav class="nav container">
 
             <div class="nav__menu" id="nav-menu">
                 <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="#" class="nav__link active-link">
-                    <i class='bx bx-home-alt nav__icon'></i>
-                    <span class="nav__name">Home</span>
-                    </a>
-                </li>
+                    <li class="nav__item">
+                        <a href="#" class="nav__link active-link">
+                            <i class='bx bx-home-alt nav__icon'></i>
+                            <span class="nav__name">Home</span>
+                        </a>
+                    </li>
 
-                <li class="nav__item">
-                    <a href="../parking/parking.html" class="nav__link">
-                    <i class='bx bx-grid-alt nav__icon'></i>
-                    <span class="nav__name">Parking</span>
-                    </a>
-                </li>
+                    <li class="nav__item">
+                        <a href="../parking/parking.html" class="nav__link">
+                            <i class='bx bx-grid-alt nav__icon'></i>
+                            <span class="nav__name">Parking</span>
+                        </a>
+                    </li>
 
-                <li class="nav__item">
-                    <a href="../user/user.html" class="nav__link">
-                    <i class='bx bx-user-circle nav__icon'></i>
-                    <span class="nav__name">Profile</span>
-                    </a>
-                </li>
+                    <li class="nav__item">
+                        <a href="../user/user.html" class="nav__link">
+                            <i class='bx bx-user-circle nav__icon'></i>
+                            <span class="nav__name">Profile</span>
+                        </a>
+                    </li>
 
                 </ul>
             </div>
@@ -262,38 +261,38 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        // --- Modal logic for video ---
-        const liveStream = document.getElementById("liveStream");
-        const modal = document.getElementById("videoModal");
-        const modalVideo = document.getElementById("modalVideo");
-        const closeModal = document.querySelector(".close");
+            // --- Modal logic for video ---
+            const liveStream = document.getElementById("liveStream");
+            const modal = document.getElementById("videoModal");
+            const modalVideo = document.getElementById("modalVideo");
+            const closeModal = document.querySelector(".close");
 
-        liveStream.addEventListener("click", () => {
-            modal.style.display = "block";
-            modalVideo.src = liveStream.src;
-        });
+            liveStream.addEventListener("click", () => {
+                modal.style.display = "block";
+                modalVideo.src = liveStream.src;
+            });
 
-        closeModal.addEventListener("click", () => {
-            modal.style.display = "none";
-            modalVideo.src = "";
-        });
+            closeModal.addEventListener("click", () => {
+                modal.style.display = "none";
+                modalVideo.src = "";
+            });
 
-        window.addEventListener("click", (event) => {
-            if (event.target === modal) {
-            modal.style.display = "none";
-            modalVideo.src = "";
-            }
-        });
+            window.addEventListener("click", (event) => {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                    modalVideo.src = "";
+                }
+            });
 
-        // --- Redirect for map button ---
-        document.getElementById("mapButton").addEventListener("click", () => {
-            window.location.href = "../parking/parking.html";
-        });
+            // --- Redirect for map button ---
+            document.getElementById("mapButton").addEventListener("click", () => {
+                window.location.href = "../parking/parking.html";
+            });
         });
 
         // --- Button ---
         document.getElementById("notifBtn").addEventListener("click", () => {
-            window.location.href = "../user/notifications.html"; 
+            window.location.href = "../user/notifications.html";
         });
     </script>
 
