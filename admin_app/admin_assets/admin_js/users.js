@@ -1,50 +1,70 @@
 import { db } from "../../../main_assets/js/authentication/firebase.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {
+  collection,
+  getDocs,
+  doc,
+  deleteDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 // ======================= LOAD ADMIN AND USERS ======================= //
-document.addEventListener("DOMContentLoaded", async () => {
-  
+document.addEventListener("DOMContentLoaded", () => {
+
   const adminsTableBody = document.querySelector(".admins-table tbody");
   const driversTableBody = document.querySelector(".drivers-table tbody");
   const passengersTableBody = document.querySelector(".passengers-table tbody");
 
-  // ---------- FETCH ADMINS ----------
+  // FETCH ADMINS
   async function fetchAdmins() {
     if (!adminsTableBody) return;
     try {
-      const querySnapshot = await getDocs(collection(db, "admins"));
+      const snapshot = await getDocs(collection(db, "admins"));
       adminsTableBody.innerHTML = "";
 
-      querySnapshot.forEach((doc) => {
-        const admin = doc.data();
+      snapshot.forEach((docSnap) => {
+        const admin = docSnap.data();
+
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${admin.fullName}</td>
           <td>${admin.idNumber}</td>
           <td>${admin.email}</td>
           <td>${admin.role}</td>
-          <td><button class="edit-btn">Edit</button></td>
+          <td>
+            <button class="action-btn delete" data-id="${docSnap.id}" data-type="admins">Delete</button>
+            <button class="action-btn deactivate" data-id="${docSnap.id}" data-type="admins">Deactivate</button>
+            <button class="action-btn activate" data-id="${docSnap.id}" data-type="admins">Activate</button>
+          </td>
         `;
+
         adminsTableBody.appendChild(row);
       });
-    } catch (error) {
-      console.error("Error fetching admins:", error);
+
+      attachActionListeners();
+
+    } catch (err) {
+      console.log("Error loading admins:", err);
     }
   }
 
-  // ---------- FETCH USERS ----------
+  // FETCH USERS
   async function fetchUsers() {
     if (!driversTableBody || !passengersTableBody) return;
+
     try {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      
-      // Clear tables first
+      const snapshot = await getDocs(collection(db, "users"));
       driversTableBody.innerHTML = "";
       passengersTableBody.innerHTML = "";
 
-      querySnapshot.forEach((doc) => {
-        const user = doc.data();
+      snapshot.forEach((docSnap) => {
+        const user = docSnap.data();
         const row = document.createElement("tr");
+
+        const actionButtons = `
+            <button class="action-btn delete" data-id="${docSnap.id}" data-type="users">Delete</button>
+            <button class="action-btn deactivate" data-id="${docSnap.id}" data-type="users">Deactivate</button>
+            <button class="action-btn activate" data-id="${docSnap.id}" data-type="users">Activate</button>
+        `;
 
         if (user.role === "driver") {
           row.innerHTML = `
@@ -52,113 +72,97 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${user.idNumber || "N/A"}</td>
             <td>${user.email}</td>
             <td>${user.role}</td>
-            <td><button class="edit-btn">Edit</button></td>
+            <td>${actionButtons}</td>
           `;
           driversTableBody.appendChild(row);
-        } else if (user.role === "passenger") {
+        }
+
+        else if (user.role === "passenger") {
           row.innerHTML = `
             <td>${user.fullName}</td>
             <td>${user.idNumber || "N/A"}</td>
             <td>${user.email}</td>
             <td>${user.role}</td>
-            <td><button class="edit-btn">Edit</button></td>
+            <td>${actionButtons}</td>
           `;
           passengersTableBody.appendChild(row);
         }
       });
-    } catch (error) {
-      console.error("Error fetching users:", error);
+
+      attachActionListeners();
+
+    } catch (err) {
+      console.log("Error loading users:", err);
     }
   }
 
-  // Call both functions
-  fetchAdmins();
-  fetchUsers();
+  // LISTENERS FOR BUTTONS
+  function attachActionListeners() {
+    document.querySelectorAll(".action-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        const col = btn.dataset.type;
 
-});
+        if (btn.classList.contains("delete")) {
+          confirmDelete(id, col);
+        }
 
-// ======================= LOGOUT FUNCTIONALITY ======================= //
-document.addEventListener("DOMContentLoaded", () => {
-  const userData = JSON.parse(localStorage.getItem("currentUser"));
+        else if (btn.classList.contains("deactivate")) {
+          updateStatus(id, col, "inactive");
+        }
 
-  if (userData) {
-    const userNameEl = document.querySelector(".user-name");
-    const userRoleEl = document.querySelector(".user-role");
-    const userPhotoEl = document.querySelector(".user-photo");
-
-    userNameEl.textContent = userData.fullName || "User";
-    userRoleEl.textContent = userData.role || "Role";
-    userPhotoEl.src = userData.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg";
-  }
-
-  const logoutBtn = document.getElementById("logout-btn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault();
-
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You will be logged out of your account.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Logout",
-        cancelButtonText: "Cancel",
-        reverseButtons: true
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            // If using Firebase Auth
-            if (typeof auth !== "undefined") {
-              await auth.signOut();
-            }
-          } catch (err) {
-            console.warn("SignOut error:", err);
-          }
-
-          // Clear localStorage
-          localStorage.removeItem("currentUser");
-
-          Swal.fire({
-            title: "Logged Out",
-            text: "You have been successfully logged out.",
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-            willClose: () => { window.location.href = "/index.html"; } // redirect to login
-          });
+        else if (btn.classList.contains("activate")) {
+          updateStatus(id, col, "active");
         }
       });
     });
   }
-});
 
-
-// ======================= SLOTS DATA ======================= //
-async function updateSlotStats() {
-  try {
-    const slotsSnapshot = await getDocs(collection(db, "slots"));
-    let availableCount = 0;
-    let occupiedCount = 0;
-
-    slotsSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.status?.toLowerCase() === "available") availableCount++;
-      else if (data.status?.toLowerCase() === "occupied") occupiedCount++;
+  // DELETE USER
+  async function confirmDelete(docId, collectionName) {
+    const result = await Swal.fire({
+      title: "Delete User?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
     });
 
-    const totalSlots = availableCount + occupiedCount;
-    const availablePercent = totalSlots ? Math.round((availableCount / totalSlots) * 100) : 0;
-    const occupiedPercent = totalSlots ? Math.round((occupiedCount / totalSlots) * 100) : 0;
+    if (!result.isConfirmed) return;
 
-    // Update UI
-    document.getElementById("availableCount").textContent = availableCount;
-    document.getElementById("occupiedCount").textContent = occupiedCount;
-    document.getElementById("availablePercent").textContent = `+${availablePercent}%`;
-    document.getElementById("occupiedPercent").textContent = `-${occupiedPercent}%`;
-  } catch (error) {
-    console.error("Error fetching slot stats:", error);
+    try {
+      await deleteDoc(doc(db, collectionName, docId));
+
+      Swal.fire("Deleted!", "User has been removed.", "success");
+
+      fetchAdmins();
+      fetchUsers();
+
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   }
-}
 
-// Run on load
-window.addEventListener("DOMContentLoaded", updateSlotStats);
+  // UPDATE STATUS (ACTIVATE / DEACTIVATE)
+  async function updateStatus(docId, collectionName, status) {
+    try {
+      await updateDoc(doc(db, collectionName, docId), {
+        status: status
+      });
+
+      Swal.fire("Updated!", `User is now ${status}.`, "success");
+
+      fetchAdmins();
+      fetchUsers();
+
+    } catch (err) {
+      console.error("Status update error:", err);
+    }
+  }
+
+  // RUN ON LOAD
+  fetchAdmins();
+  fetchUsers();
+
+});

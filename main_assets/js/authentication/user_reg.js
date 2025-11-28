@@ -59,8 +59,7 @@ if (signupForm) {
     if (!idNumber) {
       Swal.fire(
         "Error",
-        `Please provide a valid ${
-          role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"
+        `Please provide a valid ${role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"
         }.`,
         "error"
       );
@@ -264,7 +263,13 @@ if (loginForm) {
         userData = docSnap.data();
       }
 
-      // Check password
+      // Check if the status is inactive (either for users or admins)
+      if (userData.status === "inactive") {
+        Swal.fire("Error", "Your account is inactive. Please contact support.", "error");
+        return;
+      }
+
+      // Check password (after ensuring account is active)
       if (userData.password !== hashPassword(password)) {
         Swal.fire("Error", "Invalid ID or password.", "error");
         return;
@@ -462,22 +467,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const slotsRef = collection(db, "slots");
 
   onSnapshot(slotsRef, (snapshot) => {
-      let totalSlots = 0;
-      let availableSlots = 0;
+    let totalSlots = 0;
+    let availableSlots = 0;
 
-      snapshot.forEach(doc => {
-          const data = doc.data();
-          totalSlots++;
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      totalSlots++;
 
-          // Count as available if it's NOT occupied
-          if (data.status !== "Occupied") {
-              availableSlots++;
-          }
-      });
+      // Count as available if it's NOT occupied
+      if (data.status !== "Occupied") {
+        availableSlots++;
+      }
+    });
 
-      const occupiedSlots = totalSlots - availableSlots;
+    const occupiedSlots = totalSlots - availableSlots;
 
-      parkingCountEl.innerHTML = `
+    parkingCountEl.innerHTML = `
           Available: <span style="color: green;">${availableSlots}</span> 
           — Occupied: ${occupiedSlots}
       `;
@@ -596,7 +601,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     setText("user-program", latestData.program);
     setText("user-studentNo", latestData.studentNo);
     setText("user-address", latestData.address);
-    
+
     // Format phone number with +63 prefix
     const formatPhone = (num) => {
       if (!num) return "-";
