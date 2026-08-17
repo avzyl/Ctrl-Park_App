@@ -22,19 +22,6 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Prevention Script -->
-    <script>
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-        if (!currentUser) {
-            // Prevent any content from flashing
-            document.documentElement.style.display = "none";
-
-            // Redirect immediately
-            window.location.href = "/index.html";
-        }
-    </script>
-
 </head>
 
 <body>
@@ -72,25 +59,12 @@
                     </span>
                     <h3>History</h3>
                 </a>
-                <!-- <a href="#">
-                    <span class="material-icons-sharp">
-                        mail_outline
-                    </span>
-                    <h3>Violation</h3>
-                    <span class="message-count">27</span>
-                </a> -->
                 <a href="../reports/reports.html">
                     <span class="material-icons-sharp">
                         report_gmailerrorred
                     </span>
                     <h3>Reports</h3>
                 </a>
-                <!-- <a href="../settings/settings.html">
-                    <span class="material-icons-sharp">
-                        settings
-                    </span>
-                    <h3>Settings</h3>
-                </a> -->
                 <a href="#" id="logout-btn">
                     <span class="material-icons-sharp">logout</span>
                     <h3>Logout</h3>

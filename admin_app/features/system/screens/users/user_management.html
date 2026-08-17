@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Title -->
+    <title>User Management | Ctrl+Park</title>
+
+    <!-- Stylesheet -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet">
+    <link rel="stylesheet" href="../../../../admin_assets/admin_css/style.css">
+
+    <!-- Fontawesome -->
+    <script src="https://kit.fontawesome.com/a60b0a6b5e.js" crossorigin="anonymous"></script>
+
+    <!-- CryptoJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #666;
+        }
+        .modal-close:hover {
+            color: #ff4d4d;
+        }
+        .modal-body {
+            padding: 1rem 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-body table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .modal-body th, .modal-body td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-body th {
+            background: #f1f1f1;
+            position: sticky;
+            top: 0;
+            cursor: pointer;
+        }
+        .modal-body th:hover {
+            background: #e0e0e0;
+        }
+        .search-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .search-input {
+            flex: 1;
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-input[type="date"] {
+            flex: none;
+            width: 150px;
+        }
+        .search-btn, .clear-search-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .clear-search-btn {
+            background: #6c757d;
+        }
+        .search-btn:hover {
+            background: #4338ca;
+        }
+        .clear-search-btn:hover {
+            background: #5a6268;
+        }
+        .show-all-link {
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 8px;
+            font-weight: 500;
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        .log-table-container {
+            overflow-x: auto;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-radius: 20px;
+        }
+        .log-table {
+            width: 100%;
+        }
+        .log-table th, .log-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .log-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .login-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .logout-badge {
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .date-filter {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+        }
+        .date-filter input {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .sort-icon {
+            margin-left: 5px;
+            font-size: 10px;
+        }
+
+        /* Approve and Reject Button Styles */
+        .approve-btn, .reject-btn {
+            width: 80px;
+            border: none;
+            outline: none;
+            height: 30px;
+            border-radius: 49px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin: 2px 5px;
+            cursor: pointer;
+            transition: 0.5s;
+            font-size: 11px;
+        }
+
+        .approve-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .approve-btn:hover {
+            background: #218838;
+            transform: scale(1.02);
+        }
+
+        .reject-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .reject-btn:hover {
+            background: #c82333;
+            transform: scale(1.02);
+        }
+
+        /* Action buttons container */
+        .pending-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    <script>
+        if (!currentUser) {
+            document.documentElement.style.display = "none";
+            window.location.href = "/index.html";
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="container">
+        <aside>
+            <div class="toggle">
+                <div class="logo">
+                    <img src="../../../../admin_assets/admin_img/logo.svg">
+                    <h2>Ctrl+Park</h2>
+                </div>
+                <div class="close" id="close-btn">
+                    <span class="material-icons-sharp">close</span>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <a href="../home/dashboard.html">
+                    <span class="material-icons-sharp">dashboard</span>
+                    <h3>Dashboard</h3>
+                </a>
+                <a href="users.html">
+                    <span class="material-icons-sharp">person_outline</span>
+                    <h3>Users</h3>
+                </a>
+                <a href="#" class="active">
+                    <span class="material-icons-sharp">manage_accounts</span>
+                    <h3>User Management</h3>
+                </a>
+                <a href="../history/history.html">
+                    <span class="material-icons-sharp">receipt_long</span>
+                    <h3>History</h3>
+                </a>
+                <a href="../reports/reports.html">
+                    <span class="material-icons-sharp">report_gmailerrorred</span>
+                    <h3>Reports</h3>
+                </a>
+                <a href="#" id="logout-btn">
+                    <span class="material-icons-sharp">logout</span>
+                    <h3>Logout</h3>
+                </a>
+            </div>
+        </aside>
+
+        <main>
+            <h1>User Management</h1>
+            <h2>Recent Log History <span style="font-size:0.8rem; font-weight:normal;">(Latest 5)</span></h2>
+
+            <!-- Search Section -->
+            <div class="search-section">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by name, email, or ID...">
+                <input type="date" id="startDateFilter" class="search-input" style="width: 150px;" placeholder="Start Date">
+                <input type="date" id="endDateFilter" class="search-input" style="width: 150px;" placeholder="End Date">
+                <button id="searchBtn" class="search-btn"><i class="fas fa-search"></i> Search</button>
+                <button id="clearBtn" class="clear-search-btn">Clear</button>
+            </div>
+
+            <!-- Log History Table - Latest 5 -->
+            <div class="recent-orders">
+                <div class="log-table-container">
+                    <table class="log-table" id="recentLogsTable">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Student Number / ID</th>
+                                <th>Role</th>
+                                <th>Login Time</th>
+                                <th>Logout Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentLogsBody">
+                            <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <a href="#" id="showAllLogsLink" class="show-all-link">Show All Log History</a>
+            </div>
+
+            <!-- Pending Edit Requests Section -->
+            <div class="recent-orders">
+                <h2>Pending Edit Requests <span style="font-size:0.8rem; font-weight:normal;">(Awaiting Approval)</span></h2>
+                <div class="log-table-container">
+                    <table class="log-table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Role</th>
+                                <th>Requested By</th>
+                                <th>Requested At</th>
+                                <th>Requested Changes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingEditsBody">
+                            <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <div class="right-section">
+            <div class="nav">
+                <button id="menu-btn"><span class="material-icons-sharp">menu</span></button>
+                <div class="profile">
+                    <div class="info">
+                        <p>Hey, Admin! <b class="user-name"></b></p>
+                        <small class="text-muted user-role"></small>
+                    </div>
+                    <div class="profile-photo">
+                        <img class="user-photo" src="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="progress video-container">
+                    <div class="info"><h2>Gate 3 Live Stream</h2></div>
+                    <!-- <img src="https://stream.bsitport2026.com/scanner/video_feed" alt="Gate Live Stream"> -->
+                    <img src="" alt="System Offline">
+                </div>
+            </div>
+
+            <div class="user-profile">
+                <div class="progress video-container">
+                    <div class="info"><h2>Parking Live Stream</h2></div>
+                    <img src="https://stream.bsitport2026.com/parking/video_feed" alt="Parking Live Stream">
+                </div>
+            </div>
+
+            <div class="map2d">
+                <div class="progress video-container">
+                    <div class="info"><h2>2D Map</h2></div>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <div class="reminders">
+                <div class="header">
+                    <h2>Reminders</h2>
+                    <span class="material-icons-sharp">notifications_none</span>
+                </div>
+                <div id="remindersList" class="reminders-list"></div>
+                <div class="notification add-reminder">
+                    <div class="add-btn-content">
+                        <span class="material-icons-sharp">add</span>
+                        <h3>Add Reminder</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="addReminderModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="modalTitle">Add Reminder</h2>
+                    <form id="addReminderForm" class="reminder-form">
+                        <label for="reminderTitle">Title:</label>
+                        <input type="text" id="reminderTitle" placeholder="Reminder title" required>
+                        <label for="reminderDate">Date:</label>
+                        <input type="date" id="reminderDate" required>
+                        <label for="reminderTime">Time:</label>
+                        <input type="time" id="reminderTime" required>
+                        <button type="submit" class="btn-submit">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for All Log History -->
+    <div id="allLogsModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>All Log History</h3>
+                <div class="date-filter">
+                    <span>Filter by date:</span>
+                    <input type="date" id="modalStartDate" placeholder="Start Date">
+                    <input type="date" id="modalEndDate" placeholder="End Date">
+                    <button id="modalFilterBtn" class="search-btn" style="padding: 4px 12px;">Apply</button>
+                </div>
+                <button class="modal-close" id="closeLogsModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="allLogsBody">
+                <div class="log-table-container">
+                    <table class="log-table" id="allLogsTable">
+                        <thead>
+                            <tr>
+                                <th id="sortName" style="cursor: pointer;">Full Name <span class="sort-icon">↕️</span></th>
+                                <th id="sortId" style="cursor: pointer;">Student Number / ID <span class="sort-icon">↕️</span></th>
+                                <th id="sortRole" style="cursor: pointer;">Role <span class="sort-icon">↕️</span></th>
+                                <th id="sortLogin" style="cursor: pointer;">Login Time <span class="sort-icon">↕️</span></th>
+                                <th id="sortLogout" style="cursor: pointer;">Logout Time <span class="sort-icon">↕️</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="allLogsTableBody">
+                            <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../../admin_assets/admin_js/index.js"></script>
+    <script type="module" src="../../../../../main_assets/js/authentication/user_reg.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/user_management.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/reminders.js"></script>
+    <script type="module" src="../../../../admin_assets/admin_js/admin_map.js"></script>
+    <script>
+        document.querySelector(".map2d").addEventListener("click", () => {
+            window.location.href = "parking.html";
+        });
+    </script>
+</body>
+
+</html>

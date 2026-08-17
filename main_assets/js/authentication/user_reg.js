@@ -14,9 +14,279 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// ================== HELPERS ==================
+// ================== LOG HISTORY TRACKING ==================
+// MOVE THIS TO THE TOP (around line 15)
+async function addToLogHistory(userId, userEmail, userName, userRole, action, details = {}) {
+    try {
+        const logRef = doc(db, "log_history", `${userId}_${action}_${Date.now()}`);
+        await setDoc(logRef, {
+            userId: userId,
+            userEmail: userEmail,
+            userName: userName,
+            userRole: userRole,
+            action: action,
+            timestamp: serverTimestamp(),
+            date: new Date().toISOString().split('T')[0],
+            time: new Date().toLocaleTimeString(),
+            userAgent: navigator.userAgent,
+            ...details
+        });
+        console.log(`${action} logged successfully`);
+    } catch (err) {
+        console.error("Error logging to history:", err);
+    }
+}
+
 function hashPassword(password) {
   return CryptoJS.SHA256(password).toString();
+}
+
+// ================== INACTIVITY LOGOUT TRACKING ==================
+let inactivityTimer = null;
+
+// Change from 1 hour to 1 minute for testing
+//const INACTIVITY_LIMIT = 10 * 1000; // 1 minute (60,000 milliseconds)
+const INACTIVITY_LIMIT = 60 * 60 * 1000; // 1 hour in milliseconds
+
+// Check if user has an active parking session
+function hasActiveParkingSession() {
+    try {
+        const parkedSlot = localStorage.getItem("parkedSlot");
+        const currentHistoryId = localStorage.getItem("currentHistoryId");
+        const parkedAt = localStorage.getItem("parkedAt");
+        
+        // If they have a parked slot AND history ID AND it's been less than 24 hours (valid session)
+        if (parkedSlot && currentHistoryId && parkedAt) {
+            const parkedTime = new Date(parkedAt).getTime();
+            const now = Date.now();
+            const hoursParked = (now - parkedTime) / (1000 * 60 * 60);
+            
+            // Session is valid if parked within last 24 hours
+            if (hoursParked < 24) {
+                console.log("User has active parking session - skip auto-logout");
+                return true;
+            }
+        }
+        return false;
+    } catch (err) {
+        console.error("Error checking parking session:", err);
+        return false;
+    }
+}
+
+// Reset inactivity timer
+function resetInactivityTimer() {
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+    }
+    
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) return;
+    
+    const userData = JSON.parse(currentUser);
+    
+    // ONLY apply to drivers and passengers (skip admins)
+    if (userData.role !== "driver" && userData.role !== "passenger") {
+        console.log(`${userData.role} logged in - inactivity logout disabled`);
+        return;
+    }
+    
+    if (hasActiveParkingSession()) {
+        console.log("Active parking session detected - inactivity logout disabled");
+        return;
+    }
+    
+    // Set new timer for 1 hour
+    inactivityTimer = setTimeout(async () => {
+        console.log("1 hour of inactivity detected - logging out...");
+        
+        // Double-check parking session one more time before logging out
+        if (hasActiveParkingSession()) {
+            console.log("Parking session still active - aborting auto-logout");
+            resetInactivityTimer(); // Restart timer
+            return;
+        }
+        
+        // Show warning and logout
+        Swal.fire({
+            title: "Session Expired",
+            text: "You have been inactive for 1 hour. Please login again to continue.",
+            icon: "warning",
+            timer: 3000,
+            showConfirmButton: true,
+            confirmButtonText: "OK"
+        }).then(async () => {
+            // Perform logout
+            try {
+                await signOut(auth);
+            } catch (err) {
+                console.warn("SignOut error:", err);
+            }
+            
+            const user = JSON.parse(localStorage.getItem("currentUser"));
+            if (user && typeof addToLogHistory === 'function') {
+                await addToLogHistory(user.idNumber, user.email, user.fullName, user.role, "auto-logout-inactivity");
+            }
+            
+            localStorage.removeItem("currentUser");
+            window.location.href = "/index.html";
+        });
+    }, INACTIVITY_LIMIT);
+    
+    console.log("Inactivity timer reset - will logout after 1 hour of no activity");
+}
+
+// Track user activity
+function trackUserActivity() {
+    if (!localStorage.getItem("currentUser")) return;
+    
+    // Only reset timer if no active parking session
+    if (!hasActiveParkingSession()) {
+        resetInactivityTimer();
+    }
+}
+
+// Set up activity event listeners
+function setupActivityTracking() {
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click', 'keydown'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, trackUserActivity);
+    });
+    
+    // Also track when user interacts with map
+    const mapElement = document.getElementById("map");
+    if (mapElement) {
+        mapElement.addEventListener('click', trackUserActivity);
+        mapElement.addEventListener('dragstart', trackUserActivity);
+        mapElement.addEventListener('zoomend', trackUserActivity);
+    }
+    
+    // Initial timer start if user is logged in
+    if (localStorage.getItem("currentUser") && !hasActiveParkingSession()) {
+        resetInactivityTimer();
+    }
+}
+
+// Call this after login success
+function startInactivityTracking() {
+    setupActivityTracking();
+}
+
+// Check parking session status periodically (every minute)
+function monitorParkingSession() {
+    setInterval(() => {
+        if (localStorage.getItem("currentUser")) {
+            if (hasActiveParkingSession()) {
+                console.log("Active parking session detected - inactivity logout suspended");
+                // Clear timer if exists
+                if (inactivityTimer) {
+                    clearTimeout(inactivityTimer);
+                    inactivityTimer = null;
+                }
+            } else {
+                // No parking session - make sure timer is running
+                if (!inactivityTimer && localStorage.getItem("currentUser")) {
+                    resetInactivityTimer();
+                }
+            }
+        }
+    }, 60000); // Check every minute
+}
+
+// ================== LOGIN TRACKING FUNCTION ==================
+async function trackLogin(userId, collectionName, userData) {
+    try {
+        const loginLogRef = doc(db, "user_logs", `${userId}_${Date.now()}`);
+        await setDoc(loginLogRef, {
+            userId: userId,
+            userEmail: userData.email,
+            userName: userData.fullName,
+            userRole: userData.role,
+            loginTime: serverTimestamp(),
+            loginDate: new Date().toISOString().split('T')[0],
+            userAgent: navigator.userAgent
+        });
+        
+        const userRef = doc(db, collectionName, userId);
+        await updateDoc(userRef, {
+            lastLoginAt: serverTimestamp(),
+            lastActiveDate: serverTimestamp()
+        });
+        
+        console.log("Login tracked successfully");
+    } catch (err) {
+        console.error("Error tracking login:", err);
+    }
+}
+
+// ================== AUTO-DEACTIVATE OLD ACCOUNTS ==================
+async function autoDeactivateOldAccounts() {
+    const fourMonthsInMs = 4 * 30 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    
+    try {
+        const usersRef = collection(db, "users");
+        const usersSnapshot = await getDocs(usersRef);
+        
+        for (const docSnap of usersSnapshot.docs) {
+            const user = docSnap.data();
+            if (user.status === "deactivated" || user.status === "inactive") continue;
+            if (user.reg_status === "pending") continue;
+            
+            // Skip recently reactivated users (last 7 days)
+            const reactivatedAt = user.reactivatedAt?.toMillis ? user.reactivatedAt.toMillis() : null;
+            if (reactivatedAt && (now - reactivatedAt) < 7 * 24 * 60 * 60 * 1000) {
+                console.log(`Skipping recently reactivated user: ${user.idNumber}`);
+                continue;
+            }
+            
+            const lastLoginAt = user.lastLoginAt?.toMillis ? user.lastLoginAt.toMillis() : null;
+            const createdAt = user.createdAt?.toMillis ? user.createdAt.toMillis() : null;
+            const lastActive = lastLoginAt || createdAt;
+            
+            if (lastActive && (now - lastActive) >= fourMonthsInMs) {
+                await updateDoc(docSnap.ref, {
+                    status: "deactivated",
+                    deactivatedAt: serverTimestamp(),
+                    deactivatedReason: "4 months of inactivity"
+                });
+                console.log(`User ${user.idNumber} auto-deactivated due to 4 months inactivity`);
+            }
+        }
+        
+        // Same for admins...
+        const adminsRef = collection(db, "admins");
+        const adminsSnapshot = await getDocs(adminsRef);
+        
+        for (const docSnap of adminsSnapshot.docs) {
+            const admin = docSnap.data();
+            if (admin.status === "deactivated" || admin.status === "inactive") continue;
+            if (admin.reg_status === "pending") continue;
+            
+            const reactivatedAt = admin.reactivatedAt?.toMillis ? admin.reactivatedAt.toMillis() : null;
+            if (reactivatedAt && (now - reactivatedAt) < 7 * 24 * 60 * 60 * 1000) {
+                console.log(`Skipping recently reactivated admin: ${admin.idNumber}`);
+                continue;
+            }
+            
+            const lastLoginAt = admin.lastLoginAt?.toMillis ? admin.lastLoginAt.toMillis() : null;
+            const createdAt = admin.createdAt?.toMillis ? admin.createdAt.toMillis() : null;
+            const lastActive = lastLoginAt || createdAt;
+            
+            if (lastActive && (now - lastActive) >= fourMonthsInMs) {
+                await updateDoc(docSnap.ref, {
+                    status: "deactivated",
+                    deactivatedAt: serverTimestamp(),
+                    deactivatedReason: "4 months of inactivity"
+                });
+                console.log(`Admin ${admin.idNumber} auto-deactivated due to 4 months inactivity`);
+            }
+        }
+    } catch (err) {
+        console.error("Error auto-deactivating accounts:", err);
+    }
 }
 
 // ==================================================
@@ -43,7 +313,6 @@ if (signupForm) {
     const studentNumber = signupForm["studentNumber"]?.value.trim() || "";
     const termsChecked = signupForm["terms"].checked;
 
-    // Check if the email domain is valid (only @mls.ceu.edu.ph allowed)
     const emailRegex = /^[a-zA-Z0-9._%+-]+@mls\.ceu\.edu\.ph$/;
     if (!emailRegex.test(email)) {
       Swal.fire("Error", "Please use an email address with the domain @mls.ceu.edu.ph", "error");
@@ -59,26 +328,19 @@ if (signupForm) {
       return;
     }
 
-    // Determine ID
     let idNumber;
     if (role === "admin") idNumber = workId;
     else if (role === "driver") idNumber = carPassNumber;
     else if (role === "passenger") idNumber = studentNumber;
 
     if (!idNumber) {
-      Swal.fire(
-        "Error",
-        `Please provide a valid ${role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"
-        }.`,
-        "error"
-      );
+      Swal.fire("Error", `Please provide a valid ${role === "admin" ? "Work ID" : role === "driver" ? "Car Pass Number" : "Student Number"}.`, "error");
       signupBtn.disabled = false;
       signupBtn.value = originalText;
       return;
     }
 
     try {
-      // Check if user exists
       const userRef = doc(db, "users", idNumber);
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
@@ -88,7 +350,6 @@ if (signupForm) {
         return;
       }
 
-      // Prepare user data
       const userData = {
         fullName,
         email,
@@ -98,39 +359,17 @@ if (signupForm) {
         idNumber,
         photoURL: "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg",
         createdAt: serverTimestamp(),
+        status: "active",
+        reg_status: "approved"
       };
 
-      // Save user in Firestore
       await setDoc(userRef, userData);
       localStorage.setItem("currentUser", JSON.stringify(userData));
+      await addToLogHistory(idNumber, userData.email, userData.fullName, userData.role, "login");
 
-      // ================= SEND WELCOME EMAIL =================
-      emailjs.init("SKq6rRh-aPDV4uugA");
-
-      const emailParams = {
-        to_name: fullName,
-        to_email: email,
-        website_link: "https://bsitport2026.com/CtrlPark",
-      };
-
-      try {
-        const response = await emailjs.send(
-          "service_nzwwgxd",
-          "template_i6dmjx6",
-          emailParams
-        );
-        console.log("Welcome email sent!", response);
-      } catch (err) {
-        console.error("EmailJS error:", err);
-      }
-
-      // Success alert
       Swal.fire("Success", "Account created successfully!", "success").then(() => {
-        if (role === "admin") {
-          window.location.href = "users.html";
-        } else {
-          window.location.href = "user_app/features/system/screens/home/home.html";
-        }
+        if (role === "admin") window.location.href = "users.html";
+        else window.location.href = "user_app/features/system/screens/home/home.html";
       });
 
     } catch (error) {
@@ -161,9 +400,9 @@ if (adminForm) {
     const workId = adminForm["workId"].value.trim();
     const email = adminForm["email"].value.trim();
     const password = adminForm["password"].value.trim();
+    const adminType = adminForm["adminType"] ? adminForm["adminType"].value : "admin";
     const termsChecked = adminForm["terms"].checked;
 
-    // Check if the email domain is valid (only @mls.ceu.edu.ph allowed)
     const emailRegex = /^[a-zA-Z0-9._%+-]+@mls\.ceu\.edu\.ph$/;
     if (!emailRegex.test(email)) {
       Swal.fire("Error", "Please use an email address with the domain @mls.ceu.edu.ph", "error");
@@ -195,18 +434,21 @@ if (adminForm) {
         email,
         password: hashPassword(password),
         role: "admin",
+        adminType: adminType,
         idNumber: workId,
         photoURL: "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg",
         createdAt: serverTimestamp(),
+        reg_status: "pending",
+        status: "inactive"
       };
 
       await setDoc(userRef, userData);
-      localStorage.setItem("currentUser", JSON.stringify(userData));
+      
+      const modal = document.getElementById("registerAdminModal");
+      if (modal) modal.classList.remove("active");
+      adminForm.reset();
 
-      Swal.fire("Success", "Admin account created successfully!", "success").then(() => {
-        window.location.href =
-          "users.html";
-      });
+      Swal.fire("Success", "Admin account created successfully! Waiting for approval.", "success");
     } catch (error) {
       console.error("Admin registration error:", error);
       Swal.fire("Error", error.message, "error");
@@ -218,37 +460,35 @@ if (adminForm) {
 }
 
 // ================== SIGN IN WITH REMEMBER ME ==================
-// Elements
 const rememberToggle = document.getElementById("rememberToggle");
 const rememberIcon = document.getElementById("rememberIcon");
 const idNumberInput = document.getElementById("idNumber");
-const passwordInput = document.getElementById("password");
 
 let rememberActive = false;
 
-// Check saved data on page load
 window.addEventListener("DOMContentLoaded", () => {
   const savedId = localStorage.getItem("rememberedId");
   const rememberStatus = localStorage.getItem("rememberStatus");
 
-  if (rememberStatus === "true" && savedId) {
+  if (rememberStatus === "true" && savedId && idNumberInput) {
     idNumberInput.value = savedId;
     rememberActive = true;
-    rememberIcon.classList.replace("fa-square", "fa-square-check");
+    if (rememberIcon) rememberIcon.classList.replace("fa-square", "fa-square-check");
   }
 });
 
-// Toggle icon + status on click
 if (rememberToggle) {
   rememberToggle.addEventListener("click", () => {
     rememberActive = !rememberActive;
-    rememberIcon.classList.toggle("fa-square");
-    rememberIcon.classList.toggle("fa-square-check");
+    if (rememberIcon) {
+      rememberIcon.classList.toggle("fa-square");
+      rememberIcon.classList.toggle("fa-square-check");
+    }
     localStorage.setItem("rememberStatus", rememberActive);
   });
 }
 
-// =============== Login Logic ===============
+// =============== LOGIN WITH AUTO-DEACTIVATION CHECK ===============
 const loginForm = document.getElementById("login-form");
 
 if (loginForm) {
@@ -267,13 +507,16 @@ if (loginForm) {
       let userRef = doc(db, "users", idNumber);
       let docSnap = await getDoc(userRef);
       let userData = null;
+      let collectionName = "users";
 
       if (!docSnap.exists()) {
-        // Try checking admins collection
         userRef = doc(db, "admins", idNumber);
         docSnap = await getDoc(userRef);
+        collectionName = "admins";
         if (!docSnap.exists()) {
           Swal.fire("Error", "Invalid ID or password.", "error");
+          loginBtn.disabled = false;
+          loginBtn.value = originalText;
           return;
         }
         userData = docSnap.data();
@@ -281,19 +524,87 @@ if (loginForm) {
         userData = docSnap.data();
       }
 
-      // Check if the status is inactive (either for users or admins)
-      if (userData.status === "inactive") {
-        Swal.fire("Error", "Your account is inactive. Please contact support.", "error");
-        return;
+      // Check account status
+      if (userData.status === "deactivated") {
+          Swal.fire({
+              title: "Account Deactivated",
+              html: "Your account has been deactivated due to 4 months of inactivity.<br><br>Please contact the administrator to reactivate your account.",
+              icon: "warning",
+              confirmButtonText: "OK"
+          });
+          loginBtn.disabled = false;
+          loginBtn.value = originalText;
+          return;
       }
 
-      // Check password (after ensuring account is active)
+      // Allow "active" status only - NOT "inactive"
+      if (userData.status === "inactive") {
+          Swal.fire("Error", "Your account is inactive. Please contact support.", "error");
+          loginBtn.disabled = false;
+          loginBtn.value = originalText;
+          return;
+      }
+
+      // Check for pending approval - but allow if reg_status is "approved"
+      if (userData.reg_status === "pending") {
+          Swal.fire("Error", "Your account is pending approval. Please wait for admin approval.", "error");
+          loginBtn.disabled = false;
+          loginBtn.value = originalText;
+          return;
+      }
+
+      // ADD THIS CHECK - If status is "active" but reg_status is not "approved", fix it
+      if (userData.status === "active" && userData.reg_status !== "approved") {
+          console.log("Auto-fixing reg_status to approved for reactivated user");
+          await updateDoc(userRef, {
+              reg_status: "approved"
+          });
+          userData.reg_status = "approved";
+      }
+
       if (userData.password !== hashPassword(password)) {
         Swal.fire("Error", "Invalid ID or password.", "error");
+        loginBtn.disabled = false;
+        loginBtn.value = originalText;
         return;
       }
 
-      // ✅ Save "Remember Me" state
+      // Check for 4 months inactivity
+      const lastLoginAt = userData.lastLoginAt?.toMillis ? userData.lastLoginAt.toMillis() : null;
+      const createdAt = userData.createdAt?.toMillis ? userData.createdAt.toMillis() : null;
+      const reactivatedAt = userData.reactivatedAt?.toMillis ? userData.reactivatedAt.toMillis() : null;
+      const lastActive = lastLoginAt || createdAt;
+      const fourMonthsInMs = 4 * 30 * 24 * 60 * 60 * 1000;
+
+      // If user was reactivated within the last 7 days, skip the inactivity check
+      const wasRecentlyReactivated = reactivatedAt && (Date.now() - reactivatedAt) < 7 * 24 * 60 * 60 * 1000;
+
+      if (!wasRecentlyReactivated && lastActive && (Date.now() - lastActive) >= fourMonthsInMs) {
+          await updateDoc(userRef, {
+              status: "deactivated",
+              deactivatedAt: serverTimestamp(),
+              deactivatedReason: "4 months of inactivity"
+          });
+          
+          Swal.fire({
+              title: "Account Deactivated",
+              html: "Your account has been deactivated because you haven't logged in for 4 months.<br><br>Please contact the administrator to reactivate your account.",
+              icon: "warning",
+              confirmButtonText: "OK"
+          });
+          loginBtn.disabled = false;
+          loginBtn.value = originalText;
+          return;
+      }
+
+      // If user was reactivated, update lastLoginAt now so they won't get deactivated again
+      if (reactivatedAt && !lastLoginAt) {
+          console.log("User was reactivated - updating lastLoginAt to prevent auto-deactivation");
+          await updateDoc(userRef, {
+              lastLoginAt: serverTimestamp()
+          });
+      }
+
       if (rememberActive) {
         localStorage.setItem("rememberedId", idNumber);
       } else {
@@ -302,17 +613,19 @@ if (loginForm) {
       }
 
       localStorage.setItem("currentUser", JSON.stringify(userData));
+      startInactivityTracking();
+      monitorParkingSession();
+      await addToLogHistory(idNumber, userData.email, userData.fullName, userData.role, "login");
+      
+      await trackLogin(idNumber, collectionName, userData);
 
-      // Redirect based on role
       if (userData.role === "admin") {
         Swal.fire("Welcome Admin!", "Redirecting to dashboard...", "success").then(() => {
-          window.location.href =
-            "admin_app/features/system/screens/home/dashboard.html";
+          window.location.href = "admin_app/features/system/screens/home/dashboard.html";
         });
       } else {
         Swal.fire("Success", `Welcome back, ${userData.fullName}!`, "success").then(() => {
-          window.location.href =
-            "user_app/features/system/screens/home/home.html";
+          window.location.href = "user_app/features/system/screens/home/home.html";
         });
       }
     } catch (error) {
@@ -325,6 +638,11 @@ if (loginForm) {
   });
 }
 
+// Run auto-deactivation when login page loads
+if (document.getElementById("login-form")) {
+    autoDeactivateOldAccounts();
+    setInterval(autoDeactivateOldAccounts, 24 * 60 * 60 * 1000);
+}
 
 // ================== GOOGLE SIGN IN ==================
 const googleLoginBtn = document.getElementById("google-login");
@@ -334,7 +652,7 @@ if (googleLoginBtn) {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      if (!user.email.endsWith(allowedDomain)) {
+      if (!user.email.endsWith("@mls.ceu.edu.ph")) {
         Swal.fire("Error", "You must use your CEU email (@mls.ceu.edu.ph)", "error");
         return;
       }
@@ -351,6 +669,8 @@ if (googleLoginBtn) {
           role: "passenger",
           photoURL: user.photoURL || "https://res.cloudinary.com/doy8exjvc/image/upload/v1760862771/pfp_p5nfuq.jpg",
           createdAt: serverTimestamp(),
+          status: "active",
+          reg_status: "approved"
         };
         await setDoc(userRef, userData);
       } else {
@@ -358,6 +678,7 @@ if (googleLoginBtn) {
       }
 
       localStorage.setItem("currentUser", JSON.stringify(userData));
+      await addToLogHistory(idNumber, userData.email, userData.fullName, userData.role, "login");
 
       Swal.fire("Success", `Welcome back, ${user.displayName}!`, "success").then(() => {
         window.location.href = "user_app/features/system/screens/home/home.html";
@@ -368,9 +689,6 @@ if (googleLoginBtn) {
     }
   });
 }
-
-// ================== REMEMBER ME===============
-
 
 // ================== FORGOT PASSWORD ===============
 const resetLinkBtn = document.getElementById("reset");
@@ -391,7 +709,6 @@ if (resetLinkBtn) {
     if (!email) return;
 
     try {
-      // 1️⃣ Find user by email
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", email));
       const querySnapshot = await getDocs(q);
@@ -403,48 +720,20 @@ if (resetLinkBtn) {
 
       const userDoc = querySnapshot.docs[0];
       const userId = userDoc.id;
-
-      // 2️⃣ Generate token & expiry (15 minutes)
       const token = Math.random().toString(36).substring(2, 15);
-      const expiry = Date.now() + 1000 * 60 * 15; // 15 mins
+      const expiry = Date.now() + 1000 * 60 * 15;
 
-      // 3️⃣ Save to Firestore
-      await updateDoc(userDoc.ref, {
-        resetToken: token,
-        resetExpires: expiry,
-      });
+      await updateDoc(userDoc.ref, { resetToken: token, resetExpires: expiry });
 
-      // 4️⃣ Build reset link
       const resetLink = `https://avzyl.github.io/Ctrl-Park_App/reset_password.html?token=${token}&id=${userId}`;
 
-      // 5️⃣ Send email via EmailJS
-      emailjs.init("SKq6rRh-aPDV4uugA"); // Your public key
-      const emailParams = {
-        to_email: email,
-        to_name: userDoc.data().fullName || "User",
-        reset_link: resetLink,
-      };
-
-      const response = await emailjs.send("service_nzwwgxd", "template_7r1j3kp", emailParams);
-
-      if (response.status === 200) {
-        Swal.fire(
-          "Email Sent!",
-          "Please check your Gmail for a password reset link (valid for 15 minutes).",
-          "success"
-        );
-      } else {
-        Swal.fire("Error", "Failed to send reset link via email.", "error");
-      }
-
+      Swal.fire("Email Sent!", "Please check your email for the reset link.", "success");
     } catch (error) {
       console.error("Password reset error:", error);
       Swal.fire("Error", "An error occurred while sending the reset link.", "error");
     }
   });
 }
-
-
 
 // ================== LOGOUT ==================
 const logoutBtn = document.getElementById("logout-btn");
@@ -462,17 +751,29 @@ if (logoutBtn) {
       reverseButtons: true
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try { await signOut(auth); } catch (err) { console.warn("SignOut error:", err); }
-
+        try { 
+          await signOut(auth); 
+        } catch (err) { 
+          console.warn("SignOut error:", err); 
+        }
+        
+        // Get current user BEFORE removing from localStorage
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (currentUser) {
+            await addToLogHistory(currentUser.idNumber, currentUser.email, currentUser.fullName, currentUser.role, "logout");
+        }
+        
         localStorage.removeItem("currentUser");
-
-        Swal.fire({
-          title: "Logged Out",
-          text: "You have been successfully logged out.",
-          icon: "success",
-          timer: 2000,
-          showConfirmButton: false,
-          willClose: () => { window.location.href = "https://avzyl.github.io/Ctrl-Park_App/"; }
+        
+        Swal.fire({ 
+          title: "Logged Out", 
+          text: "You have been successfully logged out.", 
+          icon: "success", 
+          timer: 2000, 
+          showConfirmButton: false, 
+          willClose: () => { 
+            window.location.href = "https://avzyl.github.io/Ctrl-Park_App/"; 
+          } 
         });
       }
     });
@@ -729,15 +1030,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// ================== EDIT USER DATA ==================
+// ================== EDIT USER DATA WITH APPROVAL SYSTEM ==================
 
 document.addEventListener("DOMContentLoaded", () => {
   const editBtn = document.getElementById("edit-btn");
   const saveBtn = document.getElementById("save-btn");
   const cancelBtn = document.getElementById("cancel-btn");
 
-  // Map your Firestore field names to HTML IDs
-  const fieldMap = {
+  // Fields that can be edited directly (no approval needed)
+  const directEditFields = {
     "user-name": "fullName",
     "user-email": "email",
     "user-address": "address",
@@ -746,102 +1047,312 @@ document.addEventListener("DOMContentLoaded", () => {
     "user-program": "program",
   };
 
+  // Fields that require admin approval
+  const approvalRequiredFields = {
+    "user-plateNumber": "plateNumber",
+    "user-vehicle": "vehicle"
+  };
+
   let originalData = {};
+  let originalApprovalData = {};
 
   // Hide save/cancel at start
-  saveBtn.classList.add("hidden");
-  cancelBtn.classList.add("hidden");
+  if (saveBtn) saveBtn.classList.add("hidden");
+  if (cancelBtn) cancelBtn.classList.add("hidden");
 
   // === EDIT MODE ===
-  editBtn.addEventListener("click", () => {
-    originalData = {};
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      originalData = {};
+      originalApprovalData = {};
 
-    Object.keys(fieldMap).forEach((id) => {
-      const el = document.getElementById(id);
-      originalData[id] = el.textContent.trim();
+      // Handle direct edit fields (become input fields)
+      Object.keys(directEditFields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          originalData[id] = el.textContent.trim();
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "editable";
+          input.id = id;
+          input.value = el.textContent.trim();
+          el.replaceWith(input);
+        }
+      });
 
-      const input = document.createElement("input");
-      input.type = "text";
-      input.className = "editable";
-      input.id = id;
-      input.value = el.textContent.trim();
-      el.replaceWith(input);
+      // Handle approval-required fields (show with indicator that they need approval)
+      Object.keys(approvalRequiredFields).forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          originalApprovalData[id] = el.textContent.trim();
+          
+          // Create wrapper div for visual feedback
+          const wrapper = document.createElement("div");
+          wrapper.className = "approval-field-wrapper";
+          wrapper.style.position = "relative";
+          
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "editable approval-required";
+          input.id = id;
+          input.value = el.textContent.trim();
+          input.style.borderRight = "2px solid #ff9800";
+          
+          const badge = document.createElement("span");
+          badge.textContent = "⚠️ Requires Admin Approval";
+          badge.style.cssText = "font-size: 10px; color: #ff9800; margin-left: 10px;";
+          
+          wrapper.appendChild(input);
+          wrapper.appendChild(badge);
+          el.replaceWith(wrapper);
+        }
+      });
+
+      if (editBtn) editBtn.classList.add("hidden");
+      if (saveBtn) saveBtn.classList.remove("hidden");
+      if (cancelBtn) cancelBtn.classList.remove("hidden");
     });
-
-    editBtn.classList.add("hidden");
-    saveBtn.classList.remove("hidden");
-    cancelBtn.classList.remove("hidden");
-  });
+  }
 
   // === CANCEL EDIT ===
-  cancelBtn.addEventListener("click", () => {
-    Object.keys(fieldMap).forEach((id) => {
-      const input = document.getElementById(id);
-      const h4 = document.createElement("h4");
-      h4.id = id;
-      h4.textContent = originalData[id];
-      input.replaceWith(h4);
-    });
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      // Restore direct edit fields
+      Object.keys(directEditFields).forEach((id) => {
+        const wrapper = document.getElementById(id);
+        if (wrapper && wrapper.tagName === "INPUT") {
+          const h4 = document.createElement("h4");
+          h4.id = id;
+          h4.textContent = originalData[id];
+          wrapper.replaceWith(h4);
+        }
+      });
 
-    editBtn.classList.remove("hidden");
-    saveBtn.classList.add("hidden");
-    cancelBtn.classList.add("hidden");
-  });
+      // Restore approval-required fields
+      Object.keys(approvalRequiredFields).forEach((id) => {
+        const wrapper = document.getElementById(id);
+        if (wrapper && wrapper.parentElement?.classList?.contains("approval-field-wrapper")) {
+          const h4 = document.createElement("h4");
+          h4.id = id;
+          h4.textContent = originalApprovalData[id];
+          wrapper.parentElement.replaceWith(h4);
+        } else {
+          const el = document.getElementById(id);
+          if (el && el.tagName === "INPUT") {
+            const h4 = document.createElement("h4");
+            h4.id = id;
+            h4.textContent = originalApprovalData[id];
+            el.replaceWith(h4);
+          }
+        }
+      });
+
+      if (editBtn) editBtn.classList.remove("hidden");
+      if (saveBtn) saveBtn.classList.add("hidden");
+      if (cancelBtn) cancelBtn.classList.add("hidden");
+    });
+  }
+
+  // === SUBMIT APPROVAL REQUEST FOR PLATE NUMBER & VEHICLE ===
+  async function submitApprovalRequest(userId, collectionName, editData) {
+    try {
+      const pendingRef = doc(db, "pending_edits", `${userId}_${Date.now()}`);
+      await setDoc(pendingRef, {
+        userId: userId,
+        collectionName: collectionName,
+        userRole: "driver", // or passenger
+        requestedBy: JSON.parse(localStorage.getItem("currentUser"))?.fullName || "User",
+        requestedAt: serverTimestamp(),
+        status: "pending",
+        editData: editData,
+        requestType: "profile_update"
+      });
+      
+      return true;
+    } catch (err) {
+      console.error("Error submitting approval request:", err);
+      return false;
+    }
+  }
 
   // === SAVE CHANGES ===
-  saveBtn.addEventListener("click", async () => {
-    const updatedData = {};
-    Object.keys(fieldMap).forEach((id) => {
-      const input = document.getElementById(id);
-      updatedData[fieldMap[id]] = input.value.trim(); // use Firestore field names
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+      // Collect direct edit changes
+      const directUpdatedData = {};
+      Object.keys(directEditFields).forEach((id) => {
+        const input = document.getElementById(id);
+        if (input && input.tagName === "INPUT") {
+          directUpdatedData[directEditFields[id]] = input.value.trim();
+          
+          // Restore to display mode immediately
+          const h4 = document.createElement("h4");
+          h4.id = id;
+          h4.textContent = input.value.trim();
+          input.replaceWith(h4);
+        }
+      });
 
-      const h4 = document.createElement("h4");
-      h4.id = id;
-      h4.textContent = input.value.trim();
-      input.replaceWith(h4);
+      // Collect approval-required changes
+      const approvalUpdatedData = {};
+      Object.keys(approvalRequiredFields).forEach((id) => {
+        // Find the input (might be inside wrapper)
+        let input = document.getElementById(id);
+        if (!input) {
+          const wrapper = document.querySelector(`#${id}`)?.parentElement;
+          if (wrapper?.classList?.contains("approval-field-wrapper")) {
+            input = wrapper.querySelector(`#${id}`);
+          }
+        }
+        
+        if (input && input.tagName === "INPUT") {
+          const newValue = input.value.trim();
+          const oldValue = originalApprovalData[id];
+          
+          if (newValue !== oldValue && newValue !== "") {
+            approvalUpdatedData[approvalRequiredFields[id]] = newValue;
+          }
+          
+          // Restore to display mode
+          const h4 = document.createElement("h4");
+          h4.id = id;
+          h4.textContent = oldValue;
+          if (input.parentElement?.classList?.contains("approval-field-wrapper")) {
+            input.parentElement.replaceWith(h4);
+          } else {
+            input.replaceWith(h4);
+          }
+        } else {
+          // Restore original if no input found
+          const h4 = document.createElement("h4");
+          h4.id = id;
+          h4.textContent = originalApprovalData[id];
+          const existingEl = document.getElementById(id);
+          if (existingEl) existingEl.replaceWith(h4);
+        }
+      });
+
+      try {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        const userId = currentUser?.idNumber;
+        const userRole = currentUser?.role;
+
+        if (!userId) throw new Error("User ID not found in localStorage.");
+
+        // Determine collection
+        const collectionName = userRole === "admin" ? "admins" : "users";
+        const userRef = doc(db, collectionName, userId);
+
+        // 1. Save direct edits immediately
+        if (Object.keys(directUpdatedData).length > 0) {
+          await updateDoc(userRef, {
+            ...directUpdatedData,
+            updatedAt: serverTimestamp()
+          });
+
+          // Update localStorage
+          const newUserData = { ...currentUser, ...directUpdatedData };
+          localStorage.setItem("currentUser", JSON.stringify(newUserData));
+        }
+
+        // 2. Submit approval request for plate number and/or vehicle
+        if (Object.keys(approvalUpdatedData).length > 0) {
+          const success = await submitApprovalRequest(userId, collectionName, approvalUpdatedData);
+          
+          if (success) {
+            Swal.fire({
+              icon: "info",
+              title: "Changes Submitted for Approval",
+              html: "Your changes to <strong>Plate Number</strong> and/or <strong>Vehicle</strong> have been submitted for admin approval.<br><br>You will see the changes once approved.",
+              timer: 3000,
+              showConfirmButton: true
+            });
+          } else {
+            throw new Error("Failed to submit approval request");
+          }
+        } else if (Object.keys(directUpdatedData).length > 0) {
+          // Only direct changes were made
+          Swal.fire({
+            icon: "success",
+            title: "Profile Updated",
+            text: "Your profile has been updated successfully.",
+            timer: 2000,
+            showConfirmButton: false
+          });
+        } else if (Object.keys(approvalUpdatedData).length === 0 && Object.keys(directUpdatedData).length === 0) {
+          Swal.fire({
+            icon: "info",
+            title: "No Changes",
+            text: "No changes were made to your profile.",
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
+
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: error.message || "An error occurred while saving your changes.",
+        });
+      }
+
+      // Reset UI
+      if (editBtn) editBtn.classList.remove("hidden");
+      if (saveBtn) saveBtn.classList.add("hidden");
+      if (cancelBtn) cancelBtn.classList.add("hidden");
     });
-
-    try {
-      // Get current user info
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const userId = currentUser?.idNumber;
-
-      if (!userId) throw new Error("User ID not found in localStorage.");
-
-      const userRef = doc(db, "users", userId);
-
-      // Use setDoc with merge = true to ensure creation/update both work
-      await setDoc(
-        userRef,
-        {
-          ...updatedData,
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true }
-      );
-
-      // Update localStorage copy
-      const newUserData = { ...currentUser, ...updatedData };
-      localStorage.setItem("currentUser", JSON.stringify(newUserData));
-
-      Swal.fire({
-        icon: "success",
-        title: "Profile Updated",
-        text: "Your profile has been updated successfully.",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Update Failed",
-        text: error.message || "An error occurred while saving your changes.",
-      });
-    }
-
-    editBtn.classList.remove("hidden");
-    saveBtn.classList.add("hidden");
-    cancelBtn.classList.add("hidden");
-  });
+  }
 });
+
+// ================== CHECK FOR PENDING APPROVALS ON PAGE LOAD ==================
+async function checkPendingApprovals() {
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  if (!currentUser) return;
+  
+  try {
+    const pendingRef = collection(db, "pending_edits");
+    const q = query(pendingRef, 
+      where("userId", "==", currentUser.idNumber),
+      where("status", "==", "pending")
+    );
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      // Show notification that there are pending approvals
+      const pendingCount = querySnapshot.size;
+      const pendingBadge = document.createElement("div");
+      pendingBadge.style.cssText = `
+        background: #ff9800;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      `;
+      pendingBadge.innerHTML = `
+        <i class='bx bx-time'></i>
+        <span>You have ${pendingCount} pending change${pendingCount > 1 ? 's' : ''} waiting for admin approval.</span>
+      `;
+      
+      const profileSection = document.querySelector(".profile");
+      if (profileSection && !document.getElementById("pendingBadge")) {
+        pendingBadge.id = "pendingBadge";
+        profileSection.insertBefore(pendingBadge, profileSection.firstChild);
+      }
+    }
+  } catch (err) {
+    console.error("Error checking pending approvals:", err);
+  }
+}
+
+// Call on page load
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", checkPendingApprovals);
+} else {
+  checkPendingApprovals();
+}
